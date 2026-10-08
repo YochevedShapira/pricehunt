@@ -221,7 +221,7 @@ Sort columns are whitelisted via an enum to prevent arbitrary expressions.
 | 1  | Solution + 4 src projects + 4 test projects, `Directory.Build.props` (nullable, warnings as errors, implicit usings), builds green | [x] |
 | 2  | Domain: `Route`, `DateRange` value objects; `Search`, `SupplierResponse` entities; `SearchStatus`, `ResponseOutcome` enums (tests for value-object invariants) | [x] |
 | 3  | Application ports: `ISupplier`, `ISupplierCatalog`, `ISearchRepository`, `SearchRequest`, `SearchEvent` hierarchy | [x] |
-| 4  | Application: `SupplierFanOut` – TDD with `FakeTimeProvider` (ordering, isolation, timeout, cancellation) | [ ] |
+| 4  | Application: `SupplierFanOut` – TDD with `FakeTimeProvider` (ordering, isolation, timeout, cancellation) | [x] |
 | 5  | Application: `SearchRecorder` + `PriceSearch` use case composing fan-out and recording | [ ] |
 | 6  | Infrastructure: `SimulatedSupplier`, `SupplierProfile`, `SupplierCatalog` with the seven profiles (tests with seeded `Random`) | [ ] |
 | 7  | Infrastructure: `PriceHuntDbContext`, entity configurations, initial migration, `SearchRepository` (tests on SQLite in-memory) | [ ] |
