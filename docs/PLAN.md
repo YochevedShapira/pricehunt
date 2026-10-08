@@ -160,7 +160,7 @@ queryable and keeps the model relational; a JSON column would be an
 optimisation we cannot justify yet.
 
 Why record `NoResponse` rows: the brief says failures must be recorded, and
-"never answered within the budget" is the most important failure to see in
+"never answered within the timeout" is the most important failure to see in
 history.
 
 ### 1.6 History endpoint: server-side filtering, sorting and paging

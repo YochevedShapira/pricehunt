@@ -8,7 +8,7 @@ namespace PriceHunt.Application.Searching;
 /// <summary>
 /// Fan-out / fan-in over suppliers built on a <see cref="Channel{T}"/>:
 /// one producer task per supplier, a single consumer that yields outcomes
-/// in the order they arrive. The time budget and caller cancellation are
+/// in the order they arrive. The timeout and caller cancellation are
 /// combined into one token that every supplier call receives, so stopping
 /// the search stops the work.
 /// </summary>
@@ -29,21 +29,21 @@ public sealed partial class SupplierFanOut : ISupplierFanOut
     public async IAsyncEnumerable<SupplierOutcome> QueryAsync(
         IReadOnlyCollection<ISupplier> suppliers,
         QuoteRequest request,
-        TimeSpan budget,
+        TimeSpan timeout,
         [EnumeratorCancellation] CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(suppliers);
         ArgumentNullException.ThrowIfNull(request);
-        ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(budget, TimeSpan.Zero);
+        ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(timeout, TimeSpan.Zero);
 
-        using var budgetExpiry = new CancellationTokenSource(budget, _timeProvider);
+        using var timeoutExpiry = new CancellationTokenSource(timeout, _timeProvider);
         using var stop = CancellationTokenSource.CreateLinkedTokenSource(
-            cancellationToken, budgetExpiry.Token);
+            cancellationToken, timeoutExpiry.Token);
 
         var outcomes = Channel.CreateUnbounded<SupplierOutcome>(
             new UnboundedChannelOptions { SingleReader = true });
 
-        // Whatever ends the search (budget or caller) also ends the stream,
+        // Whatever ends the search (timeout or caller) also ends the stream,
         // even if a misbehaving supplier ignores its cancellation token.
         using var closeOnStop = stop.Token.Register(() => outcomes.Writer.TryComplete());
 
@@ -59,7 +59,7 @@ public sealed partial class SupplierFanOut : ISupplierFanOut
         finally
         {
             // A consumer that stops enumerating early must not leave
-            // supplier calls running until the budget expires.
+            // supplier calls running until the timeout expires.
             await stop.CancelAsync().ConfigureAwait(false);
         }
 
@@ -125,7 +125,7 @@ public sealed partial class SupplierFanOut : ISupplierFanOut
                 supplier.Name, "The supplier failed unexpectedly.", Elapsed(startedAt));
         }
 
-        // TryWrite is false once the stream has been closed by the budget or
+        // TryWrite is false once the stream has been closed by the timeout or
         // the caller; a late outcome is deliberately dropped.
         writer.TryWrite(outcome);
     }

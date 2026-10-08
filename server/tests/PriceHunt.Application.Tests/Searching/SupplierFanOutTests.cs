@@ -14,7 +14,7 @@ public class SupplierFanOutTests
     private const string BROKEN = "Broken";
     private const string SILENT = "Silent";
 
-    private static readonly TimeSpan BUDGET = TimeSpan.FromSeconds(6);
+    private static readonly TimeSpan TIMEOUT = TimeSpan.FromSeconds(6);
     private static readonly TimeSpan ONE_SECOND = TimeSpan.FromSeconds(1);
     private static readonly TimeSpan TWO_SECONDS = TimeSpan.FromSeconds(2);
     private static readonly Money FAST_PRICE = new(1000m, "USD");
@@ -111,37 +111,37 @@ public class SupplierFanOutTests
     }
 
     [Test]
-    public async Task QueryAsync_EndsWithoutTheSilentSupplier_WhenBudgetElapses()
+    public async Task QueryAsync_EndsWithoutTheSilentSupplier_WhenTimeoutElapses()
     {
         var collecting = CollectAsync(
             AnswersAfter(FAST, ONE_SECOND, FAST_PRICE),
             NeverAnswers(SILENT));
 
-        _time.Advance(BUDGET);
+        _time.Advance(TIMEOUT);
         var outcomes = await collecting;
 
         Assert.That(outcomes.Select(o => o.SupplierName), Is.EqualTo(new[] { FAST }));
     }
 
     [Test]
-    public async Task QueryAsync_CancelsTheSupplierCall_WhenBudgetElapses()
+    public async Task QueryAsync_CancelsTheSupplierCall_WhenTimeoutElapses()
     {
         var silent = NeverAnswers(SILENT);
         var collecting = CollectAsync(silent);
 
-        _time.Advance(BUDGET);
+        _time.Advance(TIMEOUT);
         await collecting;
 
         Assert.That(TokenGivenTo(silent).IsCancellationRequested, Is.True);
     }
 
     [Test]
-    public async Task QueryAsync_DropsOutcome_ThatArrivesAfterBudget()
+    public async Task QueryAsync_DropsOutcome_ThatArrivesAfterTimeout()
     {
         var collecting = CollectAsync(IgnoresCancellationAndAnswersAfter(
-            SLOW, BUDGET + ONE_SECOND, SLOW_PRICE));
+            SLOW, TIMEOUT + ONE_SECOND, SLOW_PRICE));
 
-        _time.Advance(BUDGET);
+        _time.Advance(TIMEOUT);
         _time.Advance(ONE_SECOND);
         var outcomes = await collecting;
 
@@ -181,7 +181,7 @@ public class SupplierFanOutTests
         var stream = _fanOut.QueryAsync(
             [AnswersAfter(FAST, ONE_SECOND, FAST_PRICE), silent],
             REQUEST,
-            BUDGET,
+            TIMEOUT,
             CancellationToken.None);
         var takingFirst = TakeFirstAsync(stream);
 
@@ -192,7 +192,7 @@ public class SupplierFanOutTests
     }
 
     [Test]
-    public void QueryAsync_Throws_OnNonPositiveBudget()
+    public void QueryAsync_Throws_OnNonPositiveTimeout()
     {
         Assert.That(
             async () => await CollectAsync(TimeSpan.Zero, CancellationToken.None),
@@ -216,17 +216,17 @@ public class SupplierFanOutTests
         CancellationToken cancellationToken,
         params ISupplier[] suppliers)
     {
-        return CollectAsync(BUDGET, cancellationToken, suppliers);
+        return CollectAsync(TIMEOUT, cancellationToken, suppliers);
     }
 
     private async Task<List<SupplierOutcome>> CollectAsync(
-        TimeSpan budget,
+        TimeSpan timeout,
         CancellationToken cancellationToken,
         params ISupplier[] suppliers)
     {
         var outcomes = new List<SupplierOutcome>();
         await foreach (var outcome in _fanOut.QueryAsync(
-            suppliers, REQUEST, budget, cancellationToken))
+            suppliers, REQUEST, timeout, cancellationToken))
         {
             outcomes.Add(outcome);
         }
