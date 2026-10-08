@@ -24,6 +24,7 @@ public class PriceSearchTests
     private static readonly Money PRICE = new(1200m, "USD");
     private static readonly SupplierPriced MAERSK_PRICED = new(MAERSK, PRICE);
     private static readonly SupplierFailure MSC_FAILED = new(MSC, "Down");
+    private static readonly TimeSpan CONFIGURED_TIMEOUT = TimeSpan.FromSeconds(4);
 
     private ISupplierCatalog _catalog = null!;
     private ISupplierFanOut _fanOut = null!;
@@ -48,8 +49,7 @@ public class PriceSearchTests
             .Returns(Task.CompletedTask);
 
         _time = new FakeTimeProvider();
-        _priceSearch = new PriceSearch(
-            _catalog, _fanOut, _repository, _time, NullLogger<PriceSearch>.Instance);
+        _priceSearch = CreatePriceSearch(new SearchOptions { Timeout = CONFIGURED_TIMEOUT });
     }
 
     [Test]
@@ -96,7 +96,7 @@ public class PriceSearchTests
     }
 
     [Test]
-    public async Task RunAsync_QueriesSuppliersWithASixSecondTimeout()
+    public async Task RunAsync_QueriesSuppliersWithTheConfiguredTimeout()
     {
         FanOutYields();
 
@@ -105,8 +105,16 @@ public class PriceSearchTests
         _ = _fanOut.Received().QueryAsync(
             Arg.Any<IReadOnlyCollection<ISupplier>>(),
             Arg.Any<PriceRequest>(),
-            TimeSpan.FromSeconds(6),
+            CONFIGURED_TIMEOUT,
             Arg.Any<CancellationToken>());
+    }
+
+    [Test]
+    public void Constructor_Throws_OnNonPositiveTimeout()
+    {
+        Assert.That(
+            () => CreatePriceSearch(new SearchOptions { Timeout = TimeSpan.Zero }),
+            Throws.InstanceOf<ArgumentOutOfRangeException>());
     }
 
     [Test]
@@ -321,6 +329,12 @@ public class PriceSearchTests
         }
 
         throw new InvalidOperationException("The stream ended without an event.");
+    }
+
+    private PriceSearch CreatePriceSearch(SearchOptions options)
+    {
+        return new PriceSearch(
+            _catalog, _fanOut, _repository, _time, options, NullLogger<PriceSearch>.Instance);
     }
 
     private static ISupplier SupplierNamed(string name)

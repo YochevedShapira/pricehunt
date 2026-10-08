@@ -174,6 +174,9 @@ Sort columns are whitelisted via an enum to prevent arbitrary expressions.
 
 ### 1.7 Cross-cutting
 
+- The search timeout is read from `appsettings.json` (`Search:Timeout`,
+  default six seconds). Application receives it as a plain `SearchOptions`
+  object; only the Api project knows configuration keys exist.
 - Input validation at the API boundary returns RFC 7807 `ValidationProblem`.
   Domain invariants (date range order, non-empty locations) live in value
   objects so they cannot be bypassed.

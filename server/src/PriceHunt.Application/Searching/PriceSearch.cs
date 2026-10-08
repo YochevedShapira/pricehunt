@@ -16,34 +16,35 @@ namespace PriceHunt.Application.Searching;
 /// </summary>
 public sealed partial class PriceSearch : IPriceSearch
 {
-    /// <summary>
-    /// Maximum duration of a search, from the brief.
-    /// </summary>
-    private static readonly TimeSpan SEARCH_TIMEOUT = TimeSpan.FromSeconds(6);
-
     private readonly ISupplierCatalog _catalog;
     private readonly ISupplierFanOut _fanOut;
     private readonly ISearchRepository _repository;
     private readonly TimeProvider _timeProvider;
     private readonly ILogger<PriceSearch> _logger;
+    private readonly TimeSpan _timeout;
 
     public PriceSearch(
         ISupplierCatalog catalog,
         ISupplierFanOut fanOut,
         ISearchRepository repository,
         TimeProvider timeProvider,
+        SearchOptions options,
         ILogger<PriceSearch> logger)
     {
         ArgumentNullException.ThrowIfNull(catalog);
         ArgumentNullException.ThrowIfNull(fanOut);
         ArgumentNullException.ThrowIfNull(repository);
         ArgumentNullException.ThrowIfNull(timeProvider);
+        ArgumentNullException.ThrowIfNull(options);
         ArgumentNullException.ThrowIfNull(logger);
+        ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(
+            options.Timeout, TimeSpan.Zero, nameof(options));
 
         _catalog = catalog;
         _fanOut = fanOut;
         _repository = repository;
         _timeProvider = timeProvider;
+        _timeout = options.Timeout;
         _logger = logger;
     }
 
@@ -65,7 +66,7 @@ public sealed partial class PriceSearch : IPriceSearch
 
             var priceRequest = new PriceRequest(request.Route, request.Dates);
             var outcomes = _fanOut.QueryAsync(
-                suppliers, priceRequest, SEARCH_TIMEOUT, cancellationToken);
+                suppliers, priceRequest, _timeout, cancellationToken);
 
             await foreach (var outcome in outcomes.ConfigureAwait(false))
             {
