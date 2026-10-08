@@ -94,56 +94,56 @@ public class SearchTests
     }
 
     [Test]
-    public void RecordQuote_AddsQuotedResponse()
+    public void RecordPrice_AddsPricedResponse()
     {
-        _search.RecordQuote(MAERSK, PRICE, ONE_SECOND_LATER);
+        _search.RecordPrice(MAERSK, PRICE, ONE_SECOND_LATER);
 
         Assert.That(
             _search.Responses.Single().Outcome,
-            Is.EqualTo(ResponseOutcome.Quoted));
+            Is.EqualTo(ResponseOutcome.Priced));
     }
 
     [Test]
-    public void RecordQuote_ComputesResponseTimeFromStart()
+    public void RecordPrice_ComputesResponseTimeFromStart()
     {
-        var response = _search.RecordQuote(MAERSK, PRICE, ONE_SECOND_LATER);
+        var response = _search.RecordPrice(MAERSK, PRICE, ONE_SECOND_LATER);
 
         Assert.That(response.ResponseTime, Is.EqualTo(TimeSpan.FromSeconds(1)));
     }
 
     [Test]
-    public void RecordQuote_LinksResponseToSearch()
+    public void RecordPrice_LinksResponseToSearch()
     {
-        var response = _search.RecordQuote(MAERSK, PRICE, ONE_SECOND_LATER);
+        var response = _search.RecordPrice(MAERSK, PRICE, ONE_SECOND_LATER);
 
         Assert.That(response.SearchId, Is.EqualTo(_search.Id));
     }
 
     [Test]
-    public void RecordQuote_Throws_OnSupplierThatWasNotRequested()
+    public void RecordPrice_Throws_OnSupplierThatWasNotRequested()
     {
         Assert.That(
-            () => _search.RecordQuote(UNKNOWN, PRICE, ONE_SECOND_LATER),
+            () => _search.RecordPrice(UNKNOWN, PRICE, ONE_SECOND_LATER),
             Throws.InstanceOf<ArgumentException>());
     }
 
     [Test]
-    public void RecordQuote_Throws_WhenSupplierAlreadyResponded()
+    public void RecordPrice_Throws_WhenSupplierAlreadyResponded()
     {
-        _search.RecordQuote(MAERSK, PRICE, ONE_SECOND_LATER);
+        _search.RecordPrice(MAERSK, PRICE, ONE_SECOND_LATER);
 
         Assert.That(
-            () => _search.RecordQuote(MAERSK, PRICE, ONE_SECOND_LATER),
+            () => _search.RecordPrice(MAERSK, PRICE, ONE_SECOND_LATER),
             Throws.InvalidOperationException);
     }
 
     [Test]
-    public void RecordQuote_Throws_WhenSearchHasEnded()
+    public void RecordPrice_Throws_WhenSearchHasEnded()
     {
         _search.End(SearchStatus.Completed, SIX_SECONDS_LATER);
 
         Assert.That(
-            () => _search.RecordQuote(MAERSK, PRICE, ONE_SECOND_LATER),
+            () => _search.RecordPrice(MAERSK, PRICE, ONE_SECOND_LATER),
             Throws.InvalidOperationException);
     }
 
@@ -184,7 +184,7 @@ public class SearchTests
     [Test]
     public void End_RecordsNoResponseForEveryUnansweredSupplier()
     {
-        _search.RecordQuote(MAERSK, PRICE, ONE_SECOND_LATER);
+        _search.RecordPrice(MAERSK, PRICE, ONE_SECOND_LATER);
 
         _search.End(SearchStatus.TimedOut, SIX_SECONDS_LATER);
 
@@ -205,7 +205,7 @@ public class SearchTests
     [Test]
     public void End_LeavesOneResponsePerRequestedSupplier()
     {
-        _search.RecordQuote(MAERSK, PRICE, ONE_SECOND_LATER);
+        _search.RecordPrice(MAERSK, PRICE, ONE_SECOND_LATER);
 
         _search.End(SearchStatus.Completed, SIX_SECONDS_LATER);
 

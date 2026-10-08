@@ -18,8 +18,8 @@ public interface ISupplier
     /// <summary>
     /// Asks the supplier for a price. Throws
     /// <see cref="SupplierUnavailableException"/> when the supplier cannot
-    /// quote, and honours <paramref name="cancellationToken"/> so that an
+    /// answer, and honours <paramref name="cancellationToken"/> so that an
     /// abandoned search stops the call.
     /// </summary>
-    Task<Money> GetQuoteAsync(QuoteRequest request, CancellationToken cancellationToken);
+    Task<Money> GetPriceAsync(PriceRequest request, CancellationToken cancellationToken);
 }

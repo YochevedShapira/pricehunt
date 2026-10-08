@@ -73,14 +73,14 @@ public sealed class Search
             startedAt);
     }
 
-    public SupplierResponse RecordQuote(
+    public SupplierResponse RecordPrice(
         string supplierName,
         Money price,
         DateTimeOffset recordedAt)
     {
         EnsureCanRecord(supplierName);
 
-        return Add(SupplierResponse.Quoted(
+        return Add(SupplierResponse.Priced(
             Id, supplierName, price, ElapsedAt(recordedAt), recordedAt));
     }
 

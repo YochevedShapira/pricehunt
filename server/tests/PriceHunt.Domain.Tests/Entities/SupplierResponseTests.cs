@@ -14,28 +14,28 @@ public class SupplierResponseTests
         new(2026, 3, 1, 10, 0, 0, TimeSpan.Zero);
 
     [Test]
-    public void Quoted_SetsOutcomeToQuoted()
+    public void Priced_SetsOutcomeToPriced()
     {
-        var response = SupplierResponse.Quoted(
+        var response = SupplierResponse.Priced(
             SEARCH_ID, SUPPLIER, PRICE, RESPONSE_TIME, RECORDED_AT);
 
-        Assert.That(response.Outcome, Is.EqualTo(ResponseOutcome.Quoted));
+        Assert.That(response.Outcome, Is.EqualTo(ResponseOutcome.Priced));
     }
 
     [Test]
-    public void Quoted_KeepsPrice()
+    public void Priced_KeepsPrice()
     {
-        var response = SupplierResponse.Quoted(
+        var response = SupplierResponse.Priced(
             SEARCH_ID, SUPPLIER, PRICE, RESPONSE_TIME, RECORDED_AT);
 
         Assert.That(response.Price, Is.EqualTo(PRICE));
     }
 
     [Test]
-    public void Quoted_Throws_OnNullPrice()
+    public void Priced_Throws_OnNullPrice()
     {
         Assert.That(
-            () => SupplierResponse.Quoted(
+            () => SupplierResponse.Priced(
                 SEARCH_ID, SUPPLIER, null!, RESPONSE_TIME, RECORDED_AT),
             Throws.ArgumentNullException);
     }
@@ -107,19 +107,19 @@ public class SupplierResponseTests
 
     [TestCase(null)]
     [TestCase("")]
-    public void Quoted_Throws_OnBlankSupplierName(string? supplier)
+    public void Priced_Throws_OnBlankSupplierName(string? supplier)
     {
         Assert.That(
-            () => SupplierResponse.Quoted(
+            () => SupplierResponse.Priced(
                 SEARCH_ID, supplier!, PRICE, RESPONSE_TIME, RECORDED_AT),
             Throws.InstanceOf<ArgumentException>());
     }
 
     [Test]
-    public void Quoted_Throws_OnNegativeResponseTime()
+    public void Priced_Throws_OnNegativeResponseTime()
     {
         Assert.That(
-            () => SupplierResponse.Quoted(
+            () => SupplierResponse.Priced(
                 SEARCH_ID, SUPPLIER, PRICE, TimeSpan.FromSeconds(-1), RECORDED_AT),
             Throws.TypeOf<ArgumentOutOfRangeException>());
     }

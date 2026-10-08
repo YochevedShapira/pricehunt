@@ -28,7 +28,7 @@ public sealed partial class SupplierFanOut : ISupplierFanOut
 
     public async IAsyncEnumerable<SupplierOutcome> QueryAsync(
         IReadOnlyCollection<ISupplier> suppliers,
-        QuoteRequest request,
+        PriceRequest request,
         TimeSpan timeout,
         [EnumeratorCancellation] CancellationToken cancellationToken)
     {
@@ -68,7 +68,7 @@ public sealed partial class SupplierFanOut : ISupplierFanOut
 
     private void StartProducers(
         IReadOnlyCollection<ISupplier> suppliers,
-        QuoteRequest request,
+        PriceRequest request,
         ChannelWriter<SupplierOutcome> writer,
         CancellationToken stopToken)
     {
@@ -95,7 +95,7 @@ public sealed partial class SupplierFanOut : ISupplierFanOut
     /// </summary>
     private async Task QueryOneAsync(
         ISupplier supplier,
-        QuoteRequest request,
+        PriceRequest request,
         long startedAt,
         ChannelWriter<SupplierOutcome> writer,
         CancellationToken stopToken)
@@ -103,8 +103,8 @@ public sealed partial class SupplierFanOut : ISupplierFanOut
         SupplierOutcome outcome;
         try
         {
-            var price = await supplier.GetQuoteAsync(request, stopToken).ConfigureAwait(false);
-            outcome = new SupplierQuoted(supplier.Name, price, Elapsed(startedAt));
+            var price = await supplier.GetPriceAsync(request, stopToken).ConfigureAwait(false);
+            outcome = new SupplierPriced(supplier.Name, price, Elapsed(startedAt));
         }
         catch (OperationCanceledException) when (stopToken.IsCancellationRequested)
         {

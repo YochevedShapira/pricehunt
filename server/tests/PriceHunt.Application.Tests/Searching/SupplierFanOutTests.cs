@@ -19,7 +19,7 @@ public class SupplierFanOutTests
     private static readonly TimeSpan TWO_SECONDS = TimeSpan.FromSeconds(2);
     private static readonly Money FAST_PRICE = new(1000m, "USD");
     private static readonly Money SLOW_PRICE = new(2000m, "USD");
-    private static readonly QuoteRequest REQUEST = new(
+    private static readonly PriceRequest REQUEST = new(
         new Route("Haifa", "Rotterdam"),
         new DateRange(new DateOnly(2026, 3, 1), new DateOnly(2026, 3, 10)));
 
@@ -34,14 +34,14 @@ public class SupplierFanOutTests
     }
 
     [Test]
-    public async Task QueryAsync_YieldsQuote_WhenSupplierAnswers()
+    public async Task QueryAsync_YieldsPrice_WhenSupplierAnswers()
     {
         var collecting = CollectAsync(AnswersAfter(FAST, ONE_SECOND, FAST_PRICE));
 
         _time.Advance(ONE_SECOND);
         var outcomes = await collecting;
 
-        Assert.That(outcomes.Single(), Is.EqualTo(new SupplierQuoted(FAST, FAST_PRICE, ONE_SECOND)));
+        Assert.That(outcomes.Single(), Is.EqualTo(new SupplierPriced(FAST, FAST_PRICE, ONE_SECOND)));
     }
 
     [Test]
@@ -259,7 +259,7 @@ public class SupplierFanOutTests
     private static CancellationToken TokenGivenTo(ISupplier supplier)
     {
         return supplier.ReceivedCalls()
-            .Single(c => c.GetMethodInfo().Name == nameof(ISupplier.GetQuoteAsync))
+            .Single(c => c.GetMethodInfo().Name == nameof(ISupplier.GetPriceAsync))
             .GetArguments()
             .OfType<CancellationToken>()
             .Single();
@@ -268,7 +268,7 @@ public class SupplierFanOutTests
     private ISupplier AnswersAfter(string name, TimeSpan delay, Money price)
     {
         var supplier = Named(name);
-        supplier.GetQuoteAsync(Arg.Any<QuoteRequest>(), Arg.Any<CancellationToken>())
+        supplier.GetPriceAsync(Arg.Any<PriceRequest>(), Arg.Any<CancellationToken>())
             .Returns(async call =>
             {
                 await Task.Delay(delay, _time, call.Arg<CancellationToken>());
@@ -281,7 +281,7 @@ public class SupplierFanOutTests
     private ISupplier IgnoresCancellationAndAnswersAfter(string name, TimeSpan delay, Money price)
     {
         var supplier = Named(name);
-        supplier.GetQuoteAsync(Arg.Any<QuoteRequest>(), Arg.Any<CancellationToken>())
+        supplier.GetPriceAsync(Arg.Any<PriceRequest>(), Arg.Any<CancellationToken>())
             .Returns(async _ =>
             {
                 await Task.Delay(delay, _time, CancellationToken.None);
@@ -294,7 +294,7 @@ public class SupplierFanOutTests
     private ISupplier FailsAfter(string name, TimeSpan delay, Exception exception)
     {
         var supplier = Named(name);
-        supplier.GetQuoteAsync(Arg.Any<QuoteRequest>(), Arg.Any<CancellationToken>())
+        supplier.GetPriceAsync(Arg.Any<PriceRequest>(), Arg.Any<CancellationToken>())
             .Returns<Task<Money>>(async call =>
             {
                 await Task.Delay(delay, _time, call.Arg<CancellationToken>());
@@ -307,7 +307,7 @@ public class SupplierFanOutTests
     private ISupplier NeverAnswers(string name)
     {
         var supplier = Named(name);
-        supplier.GetQuoteAsync(Arg.Any<QuoteRequest>(), Arg.Any<CancellationToken>())
+        supplier.GetPriceAsync(Arg.Any<PriceRequest>(), Arg.Any<CancellationToken>())
             .Returns(async call =>
             {
                 await Task.Delay(Timeout.InfiniteTimeSpan, _time, call.Arg<CancellationToken>());

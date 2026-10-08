@@ -5,4 +5,4 @@ namespace PriceHunt.Application.Suppliers;
 /// <summary>
 /// What a supplier needs to produce a price.
 /// </summary>
-public sealed record QuoteRequest(Route Route, DateRange Dates);
+public sealed record PriceRequest(Route Route, DateRange Dates);

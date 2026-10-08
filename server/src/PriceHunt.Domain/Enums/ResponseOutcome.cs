@@ -9,7 +9,7 @@ public enum ResponseOutcome
     /// <summary>
     /// The supplier returned a price.
     /// </summary>
-    Quoted = 0,
+    Priced = 0,
 
     /// <summary>
     /// The supplier answered with an error.

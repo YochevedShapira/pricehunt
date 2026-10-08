@@ -28,7 +28,7 @@ Why SSE fits this problem exactly:
 | Client cancel / disconnect must stop the work | Closing the connection fires `HttpContext.RequestAborted`; that token is the root of every supplier call. Cancellation *is* the HTTP connection lifetime, no extra protocol. |
 | New search cancels the old one                | Client unsubscribes the previous `Observable` (RxJS `switchMap`) which closes the old `EventSource`. |
 | "Tell the client the search has ended"        | A typed terminal event (`ended`) carrying the final status.                           |
-| Different event kinds (quote, failure, ended) | SSE has named events built in; the client dispatches on the event name.              |
+| Different event kinds (price, failure, ended) | SSE has named events built in; the client dispatches on the event name.              |
 
 Rejected alternatives:
 
@@ -99,7 +99,7 @@ Core or ASP.NET in the test process.
 
 ### 1.4 Suppliers: one interface, one simulated implementation, seven profiles
 
-- `ISupplier { string Name; Task<Quote> GetQuoteAsync(QuoteRequest, CancellationToken); }`
+- `ISupplier { string Name; Task<Money> GetPriceAsync(PriceRequest, CancellationToken); }`
 - `SimulatedSupplier` is a single class configured by a `SupplierProfile`
   (delay range, failure probability, never-responds flag). Seven profiles are
   registered via an `ISupplierCatalog`. Seven copy-pasted classes would
@@ -147,9 +147,9 @@ SupplierResponses                     (one row per supplier per search, success 
   Id              INT   PK
   SearchId        GUID  FK -> Searches     indexed
   SupplierName    TEXT                     indexed with RecordedAt
-  Outcome         INT   enum: Quoted, Failed, NoResponse
-  Price           DECIMAL  null unless Quoted
-  Currency        TEXT     null unless Quoted
+  Outcome         INT   enum: Priced, Failed, NoResponse
+  Price           DECIMAL  null unless Priced
+  Currency        TEXT     null unless Priced
   FailureReason   TEXT     null unless Failed
   ResponseTimeMs  INT
   RecordedAt      DATETIME (UTC)
@@ -187,7 +187,7 @@ Sort columns are whitelisted via an enum to prevent arbitrary expressions.
 - NUnit + NSubstitute + `Microsoft.Extensions.TimeProvider.Testing`. Assertions use
   NUnit's constraint model (`Assert.That`), no third-party assertion library.
 - Application layer: fan-out tested with scripted fake suppliers and a fake
-  clock (quote ordering, failure isolation, timeout status, cancellation
+  clock (price ordering, failure isolation, timeout status, cancellation
   propagation to supplier tokens, status discrimination).
 - Infrastructure: `SimulatedSupplier` with a seeded `Random`; repository
   against SQLite in-memory.
@@ -202,7 +202,7 @@ Sort columns are whitelisted via an enum to prevent arbitrary expressions.
 - `SearchStreamClient` wraps `EventSource` in an RxJS `Observable`;
   teardown calls `close()`. The search component uses `switchMap`, which is
   *exactly* "a new search cancels the previous one".
-- Results list uses `@for (... ; track quote.supplierName)` so re-sorting
+- Results list uses `@for (... ; track price.supplierName)` so re-sorting
   moves DOM nodes instead of recreating them – this is what prevents the
   flicker the brief warns about.
 - History screen: Material table with server-driven `matSort` and

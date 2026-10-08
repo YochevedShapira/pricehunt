@@ -18,7 +18,7 @@ public interface ISupplierFanOut
     /// </summary>
     IAsyncEnumerable<SupplierOutcome> QueryAsync(
         IReadOnlyCollection<ISupplier> suppliers,
-        QuoteRequest request,
+        PriceRequest request,
         TimeSpan timeout,
         CancellationToken cancellationToken);
 }

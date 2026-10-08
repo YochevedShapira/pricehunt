@@ -2,7 +2,7 @@ namespace PriceHunt.Application.Searching;
 
 /// <summary>
 /// What one supplier produced within the timeout of a search. Base of a
-/// closed set: <see cref="SupplierQuoted"/> or <see cref="SupplierFailure"/>.
+/// closed set: <see cref="SupplierPriced"/> or <see cref="SupplierFailure"/>.
 /// A supplier that never answers produces no outcome at all.
 /// </summary>
 public abstract record SupplierOutcome(string SupplierName, TimeSpan ResponseTime);

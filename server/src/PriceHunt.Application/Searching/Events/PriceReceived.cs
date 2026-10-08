@@ -5,7 +5,7 @@ namespace PriceHunt.Application.Searching.Events;
 /// <summary>
 /// A supplier returned a price.
 /// </summary>
-public sealed record QuoteReceived(
+public sealed record PriceReceived(
     string SupplierName,
     Money Price,
     TimeSpan ResponseTime) : SearchEvent;

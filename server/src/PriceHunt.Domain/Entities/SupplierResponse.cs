@@ -55,7 +55,7 @@ public sealed class SupplierResponse
 
     public DateTimeOffset RecordedAt { get; private set; }
 
-    public static SupplierResponse Quoted(
+    public static SupplierResponse Priced(
         Guid searchId,
         string supplierName,
         Money price,
@@ -67,7 +67,7 @@ public sealed class SupplierResponse
         return new SupplierResponse(
             searchId,
             supplierName,
-            ResponseOutcome.Quoted,
+            ResponseOutcome.Priced,
             price,
             failureReason: null,
             responseTime,
