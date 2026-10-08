@@ -72,9 +72,8 @@ public sealed partial class SupplierFanOut : ISupplierFanOut
         ChannelWriter<SupplierOutcome> writer,
         CancellationToken stopToken)
     {
-        var startedAt = _timeProvider.GetTimestamp();
         var producers = suppliers
-            .Select(s => QueryOneAsync(s, request, startedAt, writer, stopToken))
+            .Select(s => QueryOneAsync(s, request, writer, stopToken))
             .ToArray();
 
         _ = CloseWhenAllAnsweredAsync(producers, writer);
@@ -96,7 +95,6 @@ public sealed partial class SupplierFanOut : ISupplierFanOut
     private async Task QueryOneAsync(
         ISupplier supplier,
         PriceRequest request,
-        long startedAt,
         ChannelWriter<SupplierOutcome> writer,
         CancellationToken stopToken)
     {
@@ -104,7 +102,7 @@ public sealed partial class SupplierFanOut : ISupplierFanOut
         try
         {
             var price = await supplier.GetPriceAsync(request, stopToken).ConfigureAwait(false);
-            outcome = new SupplierPriced(supplier.Name, price, Elapsed(startedAt));
+            outcome = new SupplierPriced(supplier.Name, price);
         }
         catch (OperationCanceledException) when (stopToken.IsCancellationRequested)
         {
@@ -114,7 +112,7 @@ public sealed partial class SupplierFanOut : ISupplierFanOut
         catch (SupplierUnavailableException ex)
         {
             LogSupplierUnavailable(supplier.Name, ex.Message);
-            outcome = new SupplierFailure(supplier.Name, ex.Message, Elapsed(startedAt));
+            outcome = new SupplierFailure(supplier.Name, ex.Message);
         }
 #pragma warning disable CA1031 // Isolation requirement: one supplier's bug must not end the search.
         catch (Exception ex)
@@ -122,17 +120,12 @@ public sealed partial class SupplierFanOut : ISupplierFanOut
         {
             LogSupplierCrashed(ex, supplier.Name);
             outcome = new SupplierFailure(
-                supplier.Name, "The supplier failed unexpectedly.", Elapsed(startedAt));
+                supplier.Name, "The supplier failed unexpectedly.");
         }
 
         // TryWrite is false once the stream has been closed by the timeout or
         // the caller; a late outcome is deliberately dropped.
         writer.TryWrite(outcome);
-    }
-
-    private TimeSpan Elapsed(long startedAt)
-    {
-        return _timeProvider.GetElapsedTime(startedAt);
     }
 
     [LoggerMessage(LogLevel.Debug, "Supplier {Supplier} stopped before answering.")]

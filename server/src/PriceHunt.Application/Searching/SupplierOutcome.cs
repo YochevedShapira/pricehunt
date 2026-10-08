@@ -5,4 +5,4 @@ namespace PriceHunt.Application.Searching;
 /// closed set: <see cref="SupplierPriced"/> or <see cref="SupplierFailure"/>.
 /// A supplier that never answers produces no outcome at all.
 /// </summary>
-public abstract record SupplierOutcome(string SupplierName, TimeSpan ResponseTime);
+public abstract record SupplierOutcome(string SupplierName);

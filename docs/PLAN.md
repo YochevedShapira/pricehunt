@@ -118,9 +118,9 @@ Core or ASP.NET in the test process.
   **Migrations, not `EnsureCreated()`**: `EnsureCreated` cannot evolve a schema
   and is a dead end the moment a column is added. Migrations are the production
   path and still give "schema created automatically on first run".
-- Persistence is a separate responsibility (`ISearchRecorder` →
-  `ISearchRepository`), composed with the fan-out by the use case. The fan-out
-  does not know a database exists.
+- Persistence goes through the `ISearchRepository` port and is driven by the
+  `PriceSearch` use case, which records each outcome on the aggregate and saves
+  it before yielding the event. The fan-out does not know a database exists.
 - Final-status writes use `CancellationToken.None`: the request token is
   already cancelled at that point and the whole purpose of the write is to
   record that fact.
@@ -222,7 +222,7 @@ Sort columns are whitelisted via an enum to prevent arbitrary expressions.
 | 2  | Domain: `Route`, `DateRange` value objects; `Search`, `SupplierResponse` entities; `SearchStatus`, `ResponseOutcome` enums (tests for value-object invariants) | [x] |
 | 3  | Application ports: `ISupplier`, `ISupplierCatalog`, `ISearchRepository`, `SearchRequest`, `SearchEvent` hierarchy | [x] |
 | 4  | Application: `SupplierFanOut` – TDD with `FakeTimeProvider` (ordering, isolation, timeout, cancellation) | [x] |
-| 5  | Application: `SearchRecorder` + `PriceSearch` use case composing fan-out and recording | [ ] |
+| 5  | Application: `PriceSearch` use case composing fan-out, aggregate and repository (a separate `SearchRecorder` was dropped: recording is three lines, not a class) | [x] |
 | 6  | Infrastructure: `SimulatedSupplier`, `SupplierProfile`, `SupplierCatalog` with the seven profiles (tests with seeded `Random`) | [ ] |
 | 7  | Infrastructure: `PriceHuntDbContext`, entity configurations, initial migration, `SearchRepository` (tests on SQLite in-memory) | [ ] |
 | 8  | Api: DI composition, `GET /api/suppliers`, `GET /api/searches/stream` SSE endpoint, request validation | [ ] |

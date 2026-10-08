@@ -41,7 +41,7 @@ public class SupplierFanOutTests
         _time.Advance(ONE_SECOND);
         var outcomes = await collecting;
 
-        Assert.That(outcomes.Single(), Is.EqualTo(new SupplierPriced(FAST, FAST_PRICE, ONE_SECOND)));
+        Assert.That(outcomes.Single(), Is.EqualTo(new SupplierPriced(FAST, FAST_PRICE)));
     }
 
     [Test]
@@ -61,17 +61,6 @@ public class SupplierFanOutTests
     }
 
     [Test]
-    public async Task QueryAsync_MeasuresResponseTimeFromQueryStart()
-    {
-        var collecting = CollectAsync(AnswersAfter(SLOW, TWO_SECONDS, SLOW_PRICE));
-
-        _time.Advance(TWO_SECONDS);
-        var outcomes = await collecting;
-
-        Assert.That(outcomes.Single().ResponseTime, Is.EqualTo(TWO_SECONDS));
-    }
-
-    [Test]
     public async Task QueryAsync_YieldsFailure_WhenSupplierIsUnavailable()
     {
         var collecting = CollectAsync(FailsAfter(
@@ -80,7 +69,7 @@ public class SupplierFanOutTests
         _time.Advance(ONE_SECOND);
         var outcomes = await collecting;
 
-        Assert.That(outcomes.Single(), Is.EqualTo(new SupplierFailure(BROKEN, "Down", ONE_SECOND)));
+        Assert.That(outcomes.Single(), Is.EqualTo(new SupplierFailure(BROKEN, "Down")));
     }
 
     [Test]
