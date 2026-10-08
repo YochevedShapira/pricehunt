@@ -8,6 +8,10 @@ history tells the story of how the solution was built.
 
 ## 1. Architecture decisions (and why)
 
+Decisions confirmed on 2026-10-08: SSE for streaming, Clean Architecture in
+four projects, NUnit + NSubstitute for tests, EF Core migrations applied at
+startup.
+
 Every choice below was made to be *explainable*, not to be the fastest path.
 Each one lists the alternatives that were rejected and the reason.
 
@@ -180,7 +184,8 @@ Sort columns are whitelisted via an enum to prevent arbitrary expressions.
 
 ### 1.8 Testing strategy
 
-- xUnit + NSubstitute + `Microsoft.Extensions.TimeProvider.Testing`.
+- NUnit + NSubstitute + `Microsoft.Extensions.TimeProvider.Testing`. Assertions use
+  NUnit's constraint model (`Assert.That`), no third-party assertion library.
 - Application layer: fan-out tested with scripted fake suppliers and a fake
   clock (quote ordering, failure isolation, timeout status, cancellation
   propagation to supplier tokens, status discrimination).
@@ -213,7 +218,7 @@ Sort columns are whitelisted via an enum to prevent arbitrary expressions.
 | #  | Step                                                                 | Done |
 |----|----------------------------------------------------------------------|------|
 | 0  | Repo init, `.gitignore`, this plan, README skeleton                  | [x]  |
-| 1  | Solution + 4 src projects + 4 test projects, `Directory.Build.props` (nullable, warnings as errors, implicit usings), builds green | [ ] |
+| 1  | Solution + 4 src projects + 4 test projects, `Directory.Build.props` (nullable, warnings as errors, implicit usings), builds green | [x] |
 | 2  | Domain: `Route`, `DateRange` value objects; `Search`, `SupplierResponse` entities; `SearchStatus`, `ResponseOutcome` enums (tests for value-object invariants) | [ ] |
 | 3  | Application ports: `ISupplier`, `ISupplierCatalog`, `ISearchRepository`, `SearchRequest`, `SearchEvent` hierarchy | [ ] |
 | 4  | Application: `SupplierFanOut` – TDD with `FakeTimeProvider` (ordering, isolation, timeout, cancellation) | [ ] |

@@ -1,0 +1,8 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <ItemGroup>
+    <ProjectReference Include="..\PriceHunt.Application\PriceHunt.Application.csproj" />
+    <ProjectReference Include="..\PriceHunt.Infrastructure\PriceHunt.Infrastructure.csproj" />
+  </ItemGroup>
+
+</Project>
