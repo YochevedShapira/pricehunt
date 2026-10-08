@@ -226,7 +226,7 @@ Sort columns are whitelisted via an enum to prevent arbitrary expressions.
 | 3  | Application ports: `ISupplier`, `ISupplierCatalog`, `ISearchRepository`, `SearchRequest`, `SearchEvent` hierarchy | [x] |
 | 4  | Application: `SupplierFanOut` – TDD with `FakeTimeProvider` (ordering, isolation, timeout, cancellation) | [x] |
 | 5  | Application: `PriceSearch` use case composing fan-out, aggregate and repository (a separate `SearchRecorder` was dropped: recording is three lines, not a class) | [x] |
-| 6  | Infrastructure: `SimulatedSupplier`, `SupplierProfile`, `SupplierCatalog` with the seven profiles (tests with seeded `Random`) | [ ] |
+| 6  | Infrastructure: `SimulatedSupplier`, `SupplierProfile`, `SupplierCatalog` with the seven profiles (tests with seeded `Random`) | [x] |
 | 7  | Infrastructure: `PriceHuntDbContext`, entity configurations, initial migration, `SearchRepository` (tests on SQLite in-memory) | [ ] |
 | 8  | Api: DI composition, `GET /api/suppliers`, `GET /api/searches/stream` SSE endpoint, request validation | [ ] |
 | 9  | Api: integration test reading the SSE stream end to end               | [ ] |
