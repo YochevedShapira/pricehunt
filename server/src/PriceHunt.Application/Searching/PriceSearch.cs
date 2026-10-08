@@ -64,25 +64,22 @@ public sealed partial class PriceSearch : IPriceSearch
             yield return new SearchStarted(search.Id, suppliers.Count);
 
             var priceRequest = new PriceRequest(request.Route, request.Dates);
-            await using var outcomes = _fanOut
-                .QueryAsync(suppliers, priceRequest, SEARCH_TIMEOUT, cancellationToken)
-                .GetAsyncEnumerator(cancellationToken);
+            var outcomes = _fanOut.QueryAsync(
+                suppliers, priceRequest, SEARCH_TIMEOUT, cancellationToken);
 
-            while (await MovedToNextAsync(outcomes, cancellationToken).ConfigureAwait(false))
+            await foreach (var outcome in outcomes.ConfigureAwait(false))
             {
-                yield return await RecordAsync(search, outcomes.Current, cancellationToken)
+                yield return await RecordAsync(search, outcome, cancellationToken)
                     .ConfigureAwait(false);
             }
 
-            if (!cancellationToken.IsCancellationRequested)
-            {
-                yield return await EndAsync(search, FinalStatusOf(search)).ConfigureAwait(false);
-            }
+            yield return await EndAsync(search, FinalStatusOf(search)).ConfigureAwait(false);
         }
         finally
         {
-            // Reached with the search still running when the caller cancelled
-            // or stopped consuming the stream: either way it was cancelled.
+            // Still running here means the stream did not reach its normal end:
+            // the caller cancelled (the fan-out threw OperationCanceledException,
+            // which propagates) or stopped consuming. Either way: cancelled.
             if (search.Status == SearchStatus.Running)
             {
                 await EndAsync(search, SearchStatus.Cancelled).ConfigureAwait(false);
@@ -96,25 +93,6 @@ public sealed partial class PriceSearch : IPriceSearch
             .Select(name => _catalog.Find(name)
                 ?? throw new ArgumentException($"Unknown supplier '{name}'.", nameof(names)))
             .ToList();
-    }
-
-    /// <summary>
-    /// <c>yield return</c> cannot sit inside a <c>try</c>/<c>catch</c>, so the
-    /// fan-out's cancellation is observed here and reported as "no more
-    /// outcomes"; the caller then checks the token.
-    /// </summary>
-    private static async Task<bool> MovedToNextAsync(
-        IAsyncEnumerator<SupplierOutcome> outcomes,
-        CancellationToken cancellationToken)
-    {
-        try
-        {
-            return await outcomes.MoveNextAsync().ConfigureAwait(false);
-        }
-        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
-        {
-            return false;
-        }
     }
 
     private async Task<SearchEvent> RecordAsync(

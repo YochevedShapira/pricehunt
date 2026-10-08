@@ -10,9 +10,9 @@ public interface IPriceSearch
 {
     /// <summary>
     /// Streams <see cref="SearchEvent"/>s for one search. The first event is
-    /// always <see cref="SearchStarted"/>; the last is <see cref="SearchEnded"/>
-    /// unless the caller cancels, in which case the stream simply ends after
-    /// the search has been recorded as cancelled.
+    /// always <see cref="SearchStarted"/> and the last <see cref="SearchEnded"/>.
+    /// If the caller cancels, the search is recorded as cancelled and the
+    /// stream ends with an <see cref="OperationCanceledException"/>.
     /// </summary>
     IAsyncEnumerable<SearchEvent> RunAsync(
         SearchRequest request,

@@ -198,20 +198,20 @@ public class PriceSearchTests
         using var cancellation = new CancellationTokenSource();
         FanOutYieldsThenCancels(cancellation, MAERSK_PRICED);
 
-        await CollectAsync(cancellation.Token);
+        await SwallowCancellation(CollectAsync(cancellation.Token));
 
         Assert.That(_storedSearch!.Status, Is.EqualTo(SearchStatus.Cancelled));
     }
 
     [Test]
-    public async Task RunAsync_DoesNotYieldEnded_WhenTheCallerCancels()
+    public void RunAsync_ThrowsOperationCanceled_WhenTheCallerCancels()
     {
         using var cancellation = new CancellationTokenSource();
         FanOutYieldsThenCancels(cancellation, MAERSK_PRICED);
 
-        var events = await CollectAsync(cancellation.Token);
-
-        Assert.That(events, Has.None.InstanceOf<SearchEnded>());
+        Assert.That(
+            async () => await CollectAsync(cancellation.Token),
+            Throws.InstanceOf<OperationCanceledException>());
     }
 
     [Test]
@@ -300,6 +300,17 @@ public class PriceSearchTests
         }
 
         return events;
+    }
+
+    private static async Task SwallowCancellation(Task task)
+    {
+        try
+        {
+            await task;
+        }
+        catch (OperationCanceledException)
+        {
+        }
     }
 
     private static async Task<SearchEvent> TakeFirstAsync(IAsyncEnumerable<SearchEvent> stream)
