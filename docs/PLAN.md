@@ -219,7 +219,7 @@ Sort columns are whitelisted via an enum to prevent arbitrary expressions.
 |----|----------------------------------------------------------------------|------|
 | 0  | Repo init, `.gitignore`, this plan, README skeleton                  | [x]  |
 | 1  | Solution + 4 src projects + 4 test projects, `Directory.Build.props` (nullable, warnings as errors, implicit usings), builds green | [x] |
-| 2  | Domain: `Route`, `DateRange` value objects; `Search`, `SupplierResponse` entities; `SearchStatus`, `ResponseOutcome` enums (tests for value-object invariants) | [ ] |
+| 2  | Domain: `Route`, `DateRange` value objects; `Search`, `SupplierResponse` entities; `SearchStatus`, `ResponseOutcome` enums (tests for value-object invariants) | [x] |
 | 3  | Application ports: `ISupplier`, `ISupplierCatalog`, `ISearchRepository`, `SearchRequest`, `SearchEvent` hierarchy | [ ] |
 | 4  | Application: `SupplierFanOut` – TDD with `FakeTimeProvider` (ordering, isolation, timeout, cancellation) | [ ] |
 | 5  | Application: `SearchRecorder` + `PriceSearch` use case composing fan-out and recording | [ ] |

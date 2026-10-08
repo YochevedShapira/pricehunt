@@ -24,7 +24,7 @@ dotnet_style_predefined_type_for_locals_parameters_members = true:warning
 dotnet_style_predefined_type_for_member_access = true:warning
 
 # Modifier order
-csharp_preferred_modifier_order = public,protected,internal,private,async,abstract,override,readonly,static,virtual,sealed,new,extern,unsafe,volatile:warning
+csharp_preferred_modifier_order = public,private,protected,internal,file,static,extern,new,virtual,abstract,sealed,override,readonly,unsafe,required,volatile,async:warning
 
 # Naming: private fields _camelCase
 dotnet_naming_rule.private_fields_underscore.symbols = private_fields

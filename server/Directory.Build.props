@@ -19,6 +19,8 @@
   <PropertyGroup Condition="$(MSBuildProjectName.EndsWith('.Tests'))">
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
+    <!-- Test names use Method_Outcome_Input; CA1707 targets public library APIs. -->
+    <NoWarn>$(NoWarn);CA1707</NoWarn>
   </PropertyGroup>
 
 </Project>
