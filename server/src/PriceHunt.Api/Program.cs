@@ -1,4 +1,5 @@
 using PriceHunt.Api.Configuration;
+using PriceHunt.Api.History;
 using PriceHunt.Api.Searching;
 using PriceHunt.Api.Suppliers;
 using PriceHunt.Application;
@@ -15,6 +16,7 @@ builder.Services.AddSqlitePersistence(
     builder.Configuration.GetConnectionString("PriceHunt")
         ?? throw new InvalidOperationException("ConnectionStrings:PriceHunt is not configured."));
 builder.Services.AddSingleton<ISearchQueryParser, SearchQueryParser>();
+builder.Services.AddSingleton<IHistoryQueryParser, HistoryQueryParser>();
 
 var app = builder.Build();
 
@@ -24,6 +26,7 @@ await app.Services.MigrateDatabaseAsync(CancellationToken.None);
 
 app.MapSuppliers();
 app.MapSearch();
+app.MapHistory();
 
 await app.RunAsync();
 

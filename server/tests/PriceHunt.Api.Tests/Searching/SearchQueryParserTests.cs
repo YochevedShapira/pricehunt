@@ -42,7 +42,7 @@ public class SearchQueryParserTests
     {
         var result = _parser.Parse(ValidQuery());
 
-        Assert.That(result.Request!.Route, Is.EqualTo(new Route("Haifa", "Rotterdam")));
+        Assert.That(result.Value!.Route, Is.EqualTo(new Route("Haifa", "Rotterdam")));
     }
 
     [Test]
@@ -50,7 +50,7 @@ public class SearchQueryParserTests
     {
         var result = _parser.Parse(ValidQuery());
 
-        Assert.That(result.Request!.Dates, Is.EqualTo(new DateRange(MARCH_1, MARCH_10)));
+        Assert.That(result.Value!.Dates, Is.EqualTo(new DateRange(MARCH_1, MARCH_10)));
     }
 
     [Test]
@@ -58,7 +58,7 @@ public class SearchQueryParserTests
     {
         var result = _parser.Parse(ValidQuery() with { Suppliers = [BLUEWAVE] });
 
-        Assert.That(result.Request!.SupplierNames, Is.EqualTo(new[] { BLUEWAVE }));
+        Assert.That(result.Value!.SupplierNames, Is.EqualTo(new[] { BLUEWAVE }));
     }
 
     [Test]
@@ -66,7 +66,7 @@ public class SearchQueryParserTests
     {
         var result = _parser.Parse(ValidQuery() with { Suppliers = null });
 
-        Assert.That(result.Request!.SupplierNames, Is.EqualTo(new[] { OCEANIC, BLUEWAVE }));
+        Assert.That(result.Value!.SupplierNames, Is.EqualTo(new[] { OCEANIC, BLUEWAVE }));
     }
 
     [Test]
@@ -74,7 +74,7 @@ public class SearchQueryParserTests
     {
         var result = _parser.Parse(ValidQuery() with { Suppliers = [] });
 
-        Assert.That(result.Request!.SupplierNames, Is.EqualTo(new[] { OCEANIC, BLUEWAVE }));
+        Assert.That(result.Value!.SupplierNames, Is.EqualTo(new[] { OCEANIC, BLUEWAVE }));
     }
 
     [TestCase(null)]
@@ -166,7 +166,7 @@ public class SearchQueryParserTests
     {
         var result = _parser.Parse(new SearchQuery());
 
-        Assert.That(result.Request, Is.Null);
+        Assert.That(result.Value, Is.Null);
     }
 
     private static SearchQuery ValidQuery()

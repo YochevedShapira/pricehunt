@@ -240,7 +240,7 @@ Sort columns are whitelisted via an enum to prevent arbitrary expressions.
 | 7  | Infrastructure: `PriceHuntDbContext`, entity configurations, initial migration, `SearchRepository` (tests on SQLite in-memory) | [x] |
 | 8  | Api: DI composition, `GET /api/suppliers`, `GET /api/searches/stream` SSE endpoint, request validation | [x] |
 | 9  | Api: integration test reading the SSE stream end to end               | [x] |
-| 10 | Application + Api: history query (filter, whitelisted sort, paging) + `GET /api/history` + tests | [ ] |
+| 10 | Application + Api: history query (filter, whitelisted sort, paging) + `GET /api/history` + tests | [x] |
 | 11 | Cross-cutting: ProblemDetails, CORS, logging scopes, OpenAPI; `dotnet run` smoke test | [ ] |
 | 12 | README: how to run, streaming rationale, schema, trade-offs, AI usage | [ ] |
 

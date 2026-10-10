@@ -28,11 +28,10 @@ public static class SearchEndpoints
         var parsed = parser.Parse(query);
         if (!parsed.IsValid)
         {
-            return TypedResults.ValidationProblem(
-                parsed.Errors.ToDictionary(e => e.Key, e => e.Value));
+            return TypedResults.ValidationProblem(parsed.ErrorsForProblemDetails());
         }
 
-        var events = priceSearch.RunAsync(parsed.Request!, cancellationToken);
+        var events = priceSearch.RunAsync(parsed.Value!, cancellationToken);
 
         return TypedResults.ServerSentEvents(SearchEventMapper.ToSseItems(events));
     }

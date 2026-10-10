@@ -1,4 +1,5 @@
 using System.Text.Json;
+using PriceHunt.Api.Validation;
 using PriceHunt.Application.Searching;
 using PriceHunt.Application.Suppliers;
 using PriceHunt.Domain.ValueObjects;
@@ -28,7 +29,7 @@ public sealed class SearchQueryParser : ISearchQueryParser
         _catalog = catalog;
     }
 
-    public SearchQueryParseResult Parse(SearchQuery query)
+    public ParseResult<SearchRequest> Parse(SearchQuery query)
     {
         ArgumentNullException.ThrowIfNull(query);
 
@@ -38,8 +39,8 @@ public sealed class SearchQueryParser : ISearchQueryParser
         var suppliers = ParseSuppliers(query, errors);
 
         return errors.Count > 0
-            ? SearchQueryParseResult.Invalid(errors)
-            : SearchQueryParseResult.Valid(new SearchRequest(route!, dates!, suppliers!));
+            ? ParseResult.Invalid<SearchRequest>(errors)
+            : ParseResult.Valid(new SearchRequest(route!, dates!, suppliers!));
     }
 
     private static Route? ParseRoute(SearchQuery query, Dictionary<string, string[]> errors)

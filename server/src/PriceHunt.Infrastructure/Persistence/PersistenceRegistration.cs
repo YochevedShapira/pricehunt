@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using PriceHunt.Application.History;
 using PriceHunt.Application.Persistence;
+using PriceHunt.Infrastructure.History;
 
 namespace PriceHunt.Infrastructure.Persistence;
 
@@ -18,6 +20,7 @@ public static class PersistenceRegistration
 
         services.AddDbContext<PriceHuntDbContext>(options => options.UseSqlite(connectionString));
         services.AddScoped<ISearchRepository, SearchRepository>();
+        services.AddScoped<IHistoryReader, HistoryReader>();
 
         return services;
     }
