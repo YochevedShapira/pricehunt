@@ -238,7 +238,7 @@ Sort columns are whitelisted via an enum to prevent arbitrary expressions.
 | 5  | Application: `PriceSearch` use case composing fan-out, aggregate and repository (a separate `SearchRecorder` was dropped: recording is three lines, not a class) | [x] |
 | 6  | Infrastructure: `SimulatedSupplier`, `SupplierProfile`, `SupplierCatalog` with the seven profiles (tests with seeded `Random`) | [x] |
 | 7  | Infrastructure: `PriceHuntDbContext`, entity configurations, initial migration, `SearchRepository` (tests on SQLite in-memory) | [x] |
-| 8  | Api: DI composition, `GET /api/suppliers`, `GET /api/searches/stream` SSE endpoint, request validation | [ ] |
+| 8  | Api: DI composition, `GET /api/suppliers`, `GET /api/searches/stream` SSE endpoint, request validation | [x] |
 | 9  | Api: integration test reading the SSE stream end to end               | [ ] |
 | 10 | Application + Api: history query (filter, whitelisted sort, paging) + `GET /api/history` + tests | [ ] |
 | 11 | Cross-cutting: ProblemDetails, CORS, logging scopes, OpenAPI; `dotnet run` smoke test | [ ] |

@@ -1,6 +1,33 @@
+using PriceHunt.Api.Configuration;
+using PriceHunt.Api.Searching;
+using PriceHunt.Api.Suppliers;
+using PriceHunt.Application;
+using PriceHunt.Infrastructure.Persistence;
+using PriceHunt.Infrastructure.Suppliers;
+
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddProblemDetails();
+builder.Services.AddSearchOptions(builder.Configuration);
+builder.Services.AddPriceSearch();
+builder.Services.AddSimulatedSuppliers();
+builder.Services.AddSqlitePersistence(
+    builder.Configuration.GetConnectionString("PriceHunt")
+        ?? throw new InvalidOperationException("ConnectionStrings:PriceHunt is not configured."));
+builder.Services.AddSingleton<ISearchQueryParser, SearchQueryParser>();
+
 var app = builder.Build();
 
-app.MapGet("/", () => "Hello World!");
+app.UseExceptionHandler();
 
-app.Run();
+await app.Services.MigrateDatabaseAsync(CancellationToken.None);
+
+app.MapSuppliers();
+app.MapSearch();
+
+await app.RunAsync();
+
+/// <summary>
+/// Exposes the entry point to the integration tests' WebApplicationFactory.
+/// </summary>
+public partial class Program;
