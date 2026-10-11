@@ -4,36 +4,43 @@ Live shipping-price search across seven simulated suppliers, streamed to the
 browser as prices arrive, with a persisted and filterable price history.
 
 - **Server:** .NET 10, ASP.NET Core minimal APIs, EF Core 10 + SQLite.
-- **Client:** Angular (coming in the next steps).
+- **Client:** Angular 22, Angular Material, signals + RxJS, Zod.
 
 The step-by-step build plan and every design decision with its rejected
 alternatives are in [docs/PLAN.md](docs/PLAN.md).
 
+| Search | History |
+|---|---|
+| ![Search screen](docs/screenshots/search.png) | ![History screen](docs/screenshots/history.png) |
+
 ## How to run
 
-Prerequisite: the .NET 10 SDK. Nothing else to install.
+Prerequisites: the .NET 10 SDK and Node.js 20+. Nothing else to install.
+
+Server, in one terminal:
 
 ```
 cd server
 dotnet run --project src/PriceHunt.Api
 ```
 
-The API listens on `http://localhost:5084`. The SQLite database file is
-created next to the project on first run by applying the migrations.
-
-Try it:
+Client, in another:
 
 ```
-curl http://localhost:5084/api/suppliers
-curl -N "http://localhost:5084/api/searches/stream?fromLocation=Haifa&toLocation=Rotterdam&fromDate=2026-03-01&toDate=2026-03-10"
-curl "http://localhost:5084/api/history?sortBy=price&sortDirection=asc&pageSize=10"
+cd client
+npm install
+npm start
 ```
 
-Tests (210, no database or network setup needed):
+Open `http://localhost:4200`. The dev server proxies `/api` to the API on
+`http://localhost:5084`. The SQLite database file is created next to the API
+project on first run by applying the migrations.
+
+Tests:
 
 ```
-cd server
-dotnet test
+cd server && dotnet test        # 211 tests, no database or network setup
+cd client && npm test           # 72 tests, Vitest + jsdom
 ```
 
 ## Endpoints
@@ -58,9 +65,9 @@ event: failed    data: {"supplierName":"…","reason":"…","responseTimeMs":311
 event: ended     data: {"status":"TimedOut","respondedCount":6}
 ```
 
-`status` is `Completed`, `TimedOut` or `Cancelled`. The client should close
-the connection after `ended`, because browsers reconnect to a closed SSE
-stream automatically.
+`status` is `Completed`, `TimedOut` or `Cancelled`. The client closes the
+connection after `ended`, because browsers reconnect to a closed SSE stream
+automatically.
 
 ## Streaming: why Server-Sent Events
 
@@ -93,7 +100,7 @@ Browser ──GET /api/searches/stream──▶ SearchEndpoints
                                         ▼
                                      PriceSearch (Application)
                                         │ creates the Search aggregate, saves it
-                                        │ runs SupplierFanOut with the 6 s timeout
+                                        │ runs SupplierFanOut with the configured timeout
                                         ▼
                                      SupplierFanOut
                                         │ one task per supplier ──▶ Channel ──▶ single reader
@@ -105,10 +112,10 @@ Browser ──GET /api/searches/stream──▶ SearchEndpoints
 
 - Each supplier runs as its own task writing into a `System.Threading.Channels`
   channel. The single reader yields outcomes in arrival order.
-- The timeout and the request's cancellation are linked into one token that
-  every supplier receives. When it fires, the channel closes, so even a
-  supplier that ignores cancellation cannot keep the stream open, and a late
-  result is dropped.
+- The timeout (`Search:Timeout` in `appsettings.json`, six seconds) and the
+  request's cancellation are linked into one token that every supplier
+  receives. When it fires, the channel closes, so even a supplier that ignores
+  cancellation cannot keep the stream open, and a late result is dropped.
 - A supplier that throws becomes a `failed` event for that supplier only.
 - The final status comes from two facts: did the caller's token fire
   (Cancelled), and did every supplier answer (Completed, otherwise TimedOut).
@@ -117,6 +124,36 @@ Browser ──GET /api/searches/stream──▶ SearchEndpoints
   reading the database.
 - Every outcome is saved before it is sent, so what the client sees is already
   on disk.
+
+## The client
+
+Two screens, each a **container** that owns state and talks to the API, built
+from **presentational** components that only take inputs and emit outputs.
+
+**Search.** `SearchPage` holds one state signal and a stream of commands piped
+through RxJS `switchMap`. Subscribing to a new search unsubscribes the previous
+one, which closes its `EventSource`, which the server records as Cancelled.
+That one operator is the brief's "a new search cancels the previous one". The
+state logic (begin, apply event, cancel, rank prices, progress) is a set of
+pure functions with their own tests. The results list is rendered with
+`@for … track supplierName`, so when a cheaper price arrives Angular moves the
+existing rows instead of recreating them: no flicker.
+
+**History.** `HistoryPage` combines three signals, filters, sort and paging,
+into one query; each change becomes a request through `switchMap`, so a stale
+response can never overwrite a newer one. The table is Angular Material's with
+sort headers and a paginator, but it only reports intent: sorting and paging
+happen on the server.
+
+**At the boundary.** Every SSE message and every history response is
+validated with a Zod schema, and the TypeScript types are inferred from the
+schemas. A server message that does not match the contract becomes a visible
+error instead of a silently wrong object. There are no `as` casts in the
+client.
+
+**Styling.** The screens follow a mockup through Angular Material's theme and
+override mixins: IBM Plex type, a dark toolbar, white cards and dark selected
+chips.
 
 ## Database
 
@@ -158,7 +195,7 @@ Why these shapes:
   failures to be recorded, and "never answered within the limit" is the most
   useful failure to see in history.
 
-## Architecture
+## Server architecture
 
 Clean Architecture in four projects; dependencies point inward and are
 enforced by project references.
@@ -198,6 +235,10 @@ Points worth knowing:
 - **Api:** parsers; in-process integration tests that read the real SSE stream
   with the BCL `SseParser`, including a client disconnect that must end as
   Cancelled, not TimedOut.
+- **Client:** the API clients against a fake `EventSource` and Angular's HTTP
+  testing controller; the pure search-state functions; the page containers
+  with fake clients (a second search closes the first stream; filter and sort
+  changes return to page one); the presentational components.
 
 ## What I would do differently with more time
 
@@ -205,11 +246,13 @@ Points worth knowing:
   instances cannot race on the schema.
 - Add authentication, rate limiting and HTTPS redirection, none of which the
   brief asks for.
+- Add a summary endpoint (search count, reply count, failures, lowest price) so
+  the history screen can show the stat tiles from the mockup over the whole
+  filtered set rather than one page.
+- Expose the search time limit to the client instead of repeating "6 seconds"
+  in the copy.
 - Replace `Random.Shared` in the simulator with a seedable source per run for
   reproducible demos.
-- Expose the history filters' supplier list validation (an unknown name
-  currently returns zero rows rather than a 400).
-- Add `Task.WhenEach` as a lighter fan-in if the project ever drops Channels.
 
 ## AI usage
 
@@ -223,17 +266,21 @@ first draft of each step, and I reviewed and corrected before committing.
   Slice, N-tier) and the fan-in mechanism (Channels, WhenAny, WhenEach,
   Rx.NET, Dataflow). I chose SSE, Clean Architecture and Channels and can
   defend each choice against its alternatives.
-- **Implementation.** Each of the 12 server steps was generated test-first
-  (NUnit + NSubstitute + FakeTimeProvider), reviewed by me, and committed
-  separately so the history shows the order of construction.
+- **Implementation.** Each of the 17 steps was generated test-first, reviewed
+  by me, and committed separately so the history shows the order of
+  construction.
 - **Corrections I drove.** Replacing a hand-driven async enumerator with
   `await foreach` plus `finally` for cancellation; renaming "quote" to
   "price" to match the brief's vocabulary; moving the search timeout from a
   constant into `appsettings.json` with validation on startup; dropping a
-  planned `SearchRecorder` class as needless indirection.
-- **Verification.** The tool ran the test suite, generated the EF Core
-  migration, and performed the smoke tests, including a real client
-  disconnect to confirm the search is recorded as Cancelled.
+  planned `SearchRecorder` class as needless indirection; for the client,
+  requiring popular libraries over custom code, a strict container versus
+  presentational split, and no `as` casts, which led to Zod validation at
+  the boundary.
+- **Verification.** The tool ran the test suites, generated the EF Core
+  migration, performed the smoke tests, including a real client disconnect
+  to confirm the search is recorded as Cancelled, and drove both screens in
+  a real browser against the running API.
 - **Documentation.** The plan and this README were drafted with the tool
   and edited by me.
 

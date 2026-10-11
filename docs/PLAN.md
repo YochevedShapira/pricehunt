@@ -2,7 +2,8 @@
 
 Home assignment for Ship4wd. Stack: .NET 10 (LTS) + Angular (latest stable, >= 17).
 This file is the working plan; each numbered step is one commit so the git
-history tells the story of how the solution was built.
+history tells the story of how the solution was built. **All 17 steps are
+complete (2026-10-11).**
 
 ---
 
@@ -276,7 +277,7 @@ Two rules for the client, set on 2026-10-11:
 | 14 | `SuppliersClient`, `SearchStreamClient` (EventSource → Observable) + unit tests | [x] |
 | 15 | Search screen: form, progressive sorted list, progress + final state, switchMap cancellation | [x] |
 | 16 | History screen: filters, server-driven sort/paging table             | [x] |
-| 17 | Polish: routing/nav, error states, README client section             | [ ] |
+| 17 | Polish: routing/nav, error states, README client section             | [x] |
 
 ---
 
