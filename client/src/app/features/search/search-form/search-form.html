@@ -50,28 +50,11 @@
     </div>
   </div>
 
-  <fieldset class="search-form__suppliers">
-    <div class="search-form__suppliers-header">
-      <legend class="search-form__legend">
-        Suppliers · {{ selectedCount() }} of {{ suppliers().length }} selected
-      </legend>
-      <div>
-        <button mat-button type="button" (click)="selectAll()">Select all</button>
-        <button mat-button type="button" (click)="clearAll()">Clear</button>
-      </div>
-    </div>
-
-    <mat-chip-listbox multiple aria-label="Suppliers to query" class="search-form__chips">
-      @for (supplier of suppliers(); track supplier.name) {
-        <mat-chip-option
-          [selected]="isSelected(supplier.name)"
-          (selectionChange)="setSelected(supplier.name, $event.selected)"
-        >
-          {{ supplier.name }}
-        </mat-chip-option>
-      }
-    </mat-chip-listbox>
-  </fieldset>
+  <app-supplier-chips
+    [suppliers]="suppliers()"
+    [selected]="selected()"
+    (selectedChange)="onSelectedChange($event)"
+  />
 
   <div class="search-form__actions">
     <button mat-flat-button type="submit" [disabled]="!canSearch()">

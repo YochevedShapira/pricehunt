@@ -1,0 +1,14 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.history-error {
+  margin: 0;
+  padding: 0.875rem 1.25rem;
+  border-radius: 12px;
+  background: #fdecea;
+  color: #b42318;
+  font-weight: 500;
+}

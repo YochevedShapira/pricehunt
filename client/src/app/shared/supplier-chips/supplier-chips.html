@@ -1,0 +1,22 @@
+<fieldset class="chips">
+  <div class="chips__header">
+    <legend class="chips__legend">
+      {{ label() }} · {{ selected().length }} of {{ suppliers().length }} selected
+    </legend>
+    <div>
+      <button mat-button type="button" (click)="selectAll()">Select all</button>
+      <button mat-button type="button" (click)="clearAll()">Clear</button>
+    </div>
+  </div>
+
+  <mat-chip-listbox multiple [attr.aria-label]="label()">
+    @for (supplier of suppliers(); track supplier.name) {
+      <mat-chip-option
+        [selected]="isSelected(supplier.name)"
+        (selectionChange)="$event.isUserInput ? setSelected(supplier.name, $event.selected) : null"
+      >
+        {{ supplier.name }}
+      </mat-chip-option>
+    }
+  </mat-chip-listbox>
+</fieldset>

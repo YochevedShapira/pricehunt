@@ -1,0 +1,26 @@
+<div class="page-heading">
+  <h1 class="page-heading__title">Price history</h1>
+  <p class="page-heading__subtitle">Every supplier reply from past searches, including failures.</p>
+</div>
+
+<section class="card" aria-label="Filters">
+  <app-history-filters
+    [suppliers]="suppliers()"
+    [selectedSuppliers]="selectedSuppliers()"
+    (filtersChange)="onFiltersChange($event)"
+    (reset)="onReset()"
+  />
+</section>
+
+@if (result().error; as error) {
+  <p class="history-error" role="alert">{{ error }}</p>
+}
+
+<app-history-table
+  [page]="result().page"
+  [sort]="sort()"
+  [loading]="loading()"
+  [needsSupplierSelection]="needsSupplierSelection()"
+  (sortChange)="onSortChange($event)"
+  (pageChange)="onPageChange($event)"
+/>

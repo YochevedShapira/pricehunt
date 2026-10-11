@@ -11,4 +11,10 @@ export const routes: Routes = [
     title: 'PriceHunt · Search',
     loadComponent: () => import('./features/search/search-page').then((m) => m.SearchPage),
   },
+  {
+    path: 'history',
+    title: 'PriceHunt · History',
+    loadComponent: () =>
+      import('./features/history/history-page').then((m) => m.HistoryPageComponent),
+  },
 ];

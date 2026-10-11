@@ -1,13 +1,14 @@
 import { ChangeDetectionStrategy, Component, computed, input, output, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
-import { MatChipsModule } from '@angular/material/chips';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { SearchRequest } from '../../../core/api/search-events';
 import { Supplier } from '../../../core/api/supplier';
+import { toIsoDate } from '../../../shared/iso-date';
+import { SupplierChips } from '../../../shared/supplier-chips/supplier-chips';
 
 /**
  * Presentational: the route, dates and supplier chips. Knows nothing about
@@ -18,11 +19,11 @@ import { Supplier } from '../../../core/api/supplier';
   imports: [
     ReactiveFormsModule,
     MatButtonModule,
-    MatChipsModule,
     MatDatepickerModule,
     MatFormFieldModule,
     MatIconModule,
     MatInputModule,
+    SupplierChips,
   ],
   templateUrl: './search-form.html',
   styleUrl: './search-form.scss',
@@ -42,45 +43,29 @@ export class SearchForm {
     toDate: new FormControl<Date | null>(daysFromToday(7), [Validators.required]),
   });
 
-  /** Names deselected by the user; empty means every supplier, the default. */
-  protected readonly deselected = signal<ReadonlySet<string>>(new Set());
+  /**
+   * Names the user deselected. Stored this way round so that "everything
+   * selected", the brief's default, holds before the catalog has loaded.
+   */
+  private readonly deselected = signal<ReadonlySet<string>>(new Set());
 
-  protected readonly selectedCount = computed(
-    () => this.suppliers().filter((s) => !this.deselected().has(s.name)).length,
+  protected readonly selected = computed(() =>
+    this.suppliers()
+      .map((s) => s.name)
+      .filter((name) => !this.deselected().has(name)),
   );
 
-  protected readonly canSearch = computed(() => this.selectedCount() > 0);
+  protected readonly canSearch = computed(() => this.selected().length > 0);
 
-  protected isSelected(name: string): boolean {
-    return !this.deselected().has(name);
-  }
-
-  /**
-   * Material fires selectionChange for programmatic changes too, so the
-   * state only moves when the chip's value actually differs.
-   */
-  protected setSelected(name: string, selected: boolean): void {
-    if (this.isSelected(name) === selected) {
-      return;
-    }
-
-    this.deselected.update((current) => {
-      const next = new Set(current);
-      if (selected) {
-        next.delete(name);
-      } else {
-        next.add(name);
-      }
-      return next;
-    });
-  }
-
-  protected selectAll(): void {
-    this.deselected.set(new Set());
-  }
-
-  protected clearAll(): void {
-    this.deselected.set(new Set(this.suppliers().map((s) => s.name)));
+  protected onSelectedChange(selected: readonly string[]): void {
+    const chosen = new Set(selected);
+    this.deselected.set(
+      new Set(
+        this.suppliers()
+          .map((s) => s.name)
+          .filter((name) => !chosen.has(name)),
+      ),
+    );
   }
 
   protected swap(): void {
@@ -95,10 +80,7 @@ export class SearchForm {
       return;
     }
 
-    const selected = this.suppliers()
-      .map((s) => s.name)
-      .filter((name) => this.isSelected(name));
-
+    const selected = this.selected();
     this.search.emit({
       fromLocation: fromLocation.trim(),
       toLocation: toLocation.trim(),
@@ -120,11 +102,4 @@ function daysFromToday(days: number): Date {
   const date = startOfToday();
   date.setDate(date.getDate() + days);
   return date;
-}
-
-/** yyyy-MM-dd in local time, which is what the date pickers show. */
-function toIsoDate(date: Date): string {
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-  return `${date.getFullYear()}-${month}-${day}`;
 }

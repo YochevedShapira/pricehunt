@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using PriceHunt.Application.History;
 using PriceHunt.Domain.Entities;
+using PriceHunt.Domain.Enums;
 using PriceHunt.Infrastructure.Persistence;
 
 namespace PriceHunt.Infrastructure.History;
@@ -98,7 +99,11 @@ public sealed class HistoryReader : IHistoryReader
             HistorySortColumn.Route => OrderBy(rows, row => row.Search.Route.FromLocation, descending)
                 .ThenBy(row => row.Search.Route.ToLocation, descending),
             HistorySortColumn.Supplier => OrderBy(rows, row => row.Response.SupplierName, descending),
-            HistorySortColumn.Price => OrderBy(rows, row => row.Response.Price!.Amount, descending),
+            // Unpriced rows (failed, no response) always sort last, whichever
+            // direction: a user sorting by price wants to see prices.
+            HistorySortColumn.Price => rows
+                .OrderBy(row => row.Response.Outcome != ResponseOutcome.Priced)
+                .ThenBy(row => row.Response.Price!.Amount, descending),
             HistorySortColumn.ResponseTime => OrderBy(rows, row => row.Response.ResponseTime, descending),
             _ => throw new ArgumentOutOfRangeException(nameof(query), query.SortBy, "Unknown sort column."),
         };

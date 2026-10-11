@@ -103,6 +103,16 @@ public class HistoryReaderTests
     }
 
     [Test]
+    public async Task ReadAsync_SortsByPriceAscending_WithUnpricedRowsStillLast()
+    {
+        var page = await ReadAsync(Query(sortBy: HistorySortColumn.Price, direction: SortDirection.Ascending));
+
+        Assert.That(
+            page.Items.Select(e => e.Price?.Amount),
+            Is.EqualTo(new decimal?[] { 500m, 1000m, 2000m, null }));
+    }
+
+    [Test]
     public async Task ReadAsync_SortsByDateAscending()
     {
         var page = await ReadAsync(Query(sortBy: HistorySortColumn.Date, direction: SortDirection.Ascending));

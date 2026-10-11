@@ -1,0 +1,43 @@
+<form class="filters" [formGroup]="form">
+  <div class="filters__grid">
+    <mat-form-field appearance="outline">
+      <mat-label>Start date</mat-label>
+      <input matInput [matDatepicker]="startPicker" formControlName="startDate" />
+      <mat-datepicker-toggle matIconSuffix [for]="startPicker" />
+      <mat-datepicker #startPicker />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>End date</mat-label>
+      <input
+        matInput
+        [matDatepicker]="endPicker"
+        [min]="form.controls.startDate.value"
+        formControlName="endDate"
+      />
+      <mat-datepicker-toggle matIconSuffix [for]="endPicker" />
+      <mat-datepicker #endPicker />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>From location</mat-label>
+      <input matInput formControlName="fromLocation" placeholder="Any" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>To location</mat-label>
+      <input matInput formControlName="toLocation" placeholder="Any" />
+    </mat-form-field>
+  </div>
+
+  <div class="filters__suppliers">
+    <app-supplier-chips
+      [suppliers]="suppliers()"
+      [selected]="selectedSuppliers()"
+      (selectedChange)="onSelectedChange($event)"
+    />
+    <button mat-stroked-button type="button" class="filters__reset" (click)="resetAll()">
+      Reset filters
+    </button>
+  </div>
+</form>

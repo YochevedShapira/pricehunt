@@ -1,0 +1,27 @@
+.filters {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.filters__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.filters__suppliers {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+
+  app-supplier-chips {
+    flex: 1 1 480px;
+  }
+}
+
+.filters__reset {
+  margin-top: 0.125rem;
+}
