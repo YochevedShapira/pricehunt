@@ -1,23 +1,50 @@
+@use '@angular/material' as mat;
+
 .app-toolbar {
+  --mat-toolbar-container-background-color: var(--ph-ink);
+  --mat-toolbar-container-text-color: #fff;
+
   gap: 1rem;
+  justify-content: space-between;
 }
 
 .app-title {
-  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.625rem;
+  font-weight: 700;
+  font-size: 1.1875rem;
+  letter-spacing: -0.01em;
 }
 
 .app-nav {
   display: flex;
   gap: 0.25rem;
+
+  a {
+    @include mat.button-overrides(
+      (
+        text-label-text-color: #fff,
+      )
+    );
+
+    font-weight: 500;
+  }
 }
 
-.app-nav-active {
-  text-decoration: underline;
-  text-underline-offset: 0.35rem;
+.app-nav a.app-nav-active {
+  @include mat.button-overrides(
+    (
+      text-label-text-color: var(--ph-ink),
+    )
+  );
+
+  background: #fff;
+  font-weight: 600;
 }
 
 .app-content {
-  max-width: 1100px;
+  max-width: 1200px;
   margin: 0 auto;
-  padding: 1.5rem 1rem;
+  padding: 2rem 1.5rem 3.5rem;
 }

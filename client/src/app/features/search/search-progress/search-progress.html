@@ -1,0 +1,61 @@
+<section class="progress" aria-label="Search progress" aria-live="polite">
+  <div class="progress__header">
+    <div class="progress__status">
+      <span class="progress__badge" [class]="'progress__badge progress__badge--' + badge().tone">
+        <span class="progress__dot"></span>
+        {{ badge().label }}
+      </span>
+      <span class="progress__count">
+        {{ progress().responded }} of {{ progress().total }} suppliers responded
+      </span>
+    </div>
+    <span class="progress__meta">Search #{{ searchNo() }} · {{ elapsedSeconds() }} s</span>
+  </div>
+
+  <mat-progress-bar
+    mode="determinate"
+    [value]="progress().percent"
+    [class]="'progress__bar progress__bar--' + badge().tone"
+  />
+
+  @if (summary()) {
+    <p class="progress__summary">{{ summary() }}</p>
+  }
+  @if (error()) {
+    <p class="progress__note">{{ error() }}</p>
+  }
+  @if (replacedRunningSearch()) {
+    <p class="progress__note">
+      Search #{{ searchNo() - 1 }} was cancelled when this one started. Its late replies are
+      ignored.
+    </p>
+  }
+
+  <ul class="progress__grid">
+    @for (supplier of suppliers(); track supplier.name) {
+      <li class="progress__cell">
+        <span class="progress__cell-name">{{ supplier.name }}</span>
+        <span [class]="'progress__cell-outcome progress__cell-outcome--' + supplier.outcome">
+          <span class="progress__dot"></span>
+          @switch (supplier.outcome) {
+            @case ('pending') {
+              Waiting…
+            }
+            @case ('priced') {
+              {{ supplier.amount | currency: supplier.currency : 'symbol' : '1.0-0' }}
+            }
+            @case ('failed') {
+              Failed
+            }
+            @case ('noResponse') {
+              No response
+            }
+            @case ('cancelled') {
+              Cancelled
+            }
+          }
+        </span>
+      </li>
+    }
+  </ul>
+</section>

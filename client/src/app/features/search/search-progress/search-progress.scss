@@ -1,0 +1,156 @@
+.progress {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.progress__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.progress__status {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.progress__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.375rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.875rem;
+  font-weight: 600;
+
+  &--searching {
+    background: #e8eefc;
+    color: #1e3a8a;
+  }
+
+  &--completed {
+    background: #e3f4ef;
+    color: #0f6b5c;
+  }
+
+  &--timedout {
+    background: #fdf0e3;
+    color: #9a4a06;
+  }
+
+  &--cancelled {
+    background: #eef0f3;
+    color: #4a5160;
+  }
+
+  &--error {
+    background: #fdecea;
+    color: #b42318;
+  }
+}
+
+.progress__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.progress__count {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.progress__meta {
+  font-family: var(--ph-font-mono);
+  font-size: 0.875rem;
+  color: var(--ph-text-muted);
+}
+
+.progress__bar {
+  border-radius: 999px;
+
+  &--completed {
+    --mat-progress-bar-active-indicator-color: #0f6b5c;
+  }
+
+  &--timedout {
+    --mat-progress-bar-active-indicator-color: #c2610c;
+  }
+
+  &--cancelled,
+  &--error {
+    --mat-progress-bar-active-indicator-color: #9aa1ad;
+  }
+}
+
+.progress__summary {
+  margin: 0;
+  font-size: 0.9375rem;
+  color: var(--ph-text-strong);
+}
+
+.progress__note {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--ph-text-muted);
+}
+
+.progress__grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 0.5rem;
+}
+
+.progress__cell {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  padding: 0.625rem 0.75rem;
+  border: 1px solid var(--ph-border-soft);
+  border-radius: 8px;
+  background: #fafbfc;
+}
+
+.progress__cell-name {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--ph-text-strong);
+}
+
+.progress__cell-outcome {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+
+  &--pending,
+  &--cancelled {
+    color: var(--ph-text-muted);
+  }
+
+  &--priced {
+    color: var(--ph-text);
+
+    .progress__dot {
+      background: var(--ph-accent);
+    }
+  }
+
+  &--failed {
+    color: #b42318;
+  }
+
+  &--noResponse {
+    color: #9a4a06;
+  }
+}

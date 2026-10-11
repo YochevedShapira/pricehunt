@@ -1,0 +1,141 @@
+@keyframes results-row-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.results {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.results__header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.results__title {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.results__subtitle {
+  font-size: 0.875rem;
+  color: var(--ph-text-muted);
+}
+
+.results__empty {
+  margin: 0;
+  border: 1px solid var(--ph-border);
+  border-radius: 14px;
+  padding: 2rem 1.5rem;
+  text-align: center;
+  color: var(--ph-text-strong);
+  font-size: 0.9375rem;
+  background: var(--ph-surface);
+
+  &--dashed {
+    border-style: dashed;
+    color: var(--ph-text-muted);
+    padding: 2.5rem 1.5rem;
+  }
+}
+
+.results__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.results__row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.875rem 1.25rem;
+  background: var(--ph-surface);
+  border: 1px solid var(--ph-border);
+  border-radius: 12px;
+  animation: results-row-in 260ms ease-out;
+
+  &--cheapest {
+    background: #f3f6fe;
+    border-color: var(--ph-accent);
+  }
+}
+
+.results__rank {
+  flex: 0 0 auto;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #eef0f3;
+  color: var(--ph-text-strong);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--ph-font-mono);
+  font-size: 0.875rem;
+  font-weight: 600;
+
+  .results__row--cheapest & {
+    background: var(--ph-accent);
+    color: #fff;
+  }
+}
+
+.results__supplier {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.results__name {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.results__time {
+  font-size: 0.8125rem;
+  color: var(--ph-text-muted);
+}
+
+.results__price {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.125rem;
+}
+
+.results__amount {
+  font-family: var(--ph-font-mono);
+  font-size: 1.375rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.results__delta {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--ph-text-muted);
+
+  &--cheapest {
+    color: var(--ph-accent);
+  }
+}

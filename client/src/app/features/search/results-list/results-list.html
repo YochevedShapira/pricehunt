@@ -1,0 +1,45 @@
+<section class="results" aria-label="Results">
+  <div class="results__header">
+    <h2 class="results__title">Results</h2>
+    <span class="results__subtitle">
+      Cheapest first
+      @if (route()) {
+        · {{ route() }}
+      }
+    </span>
+  </div>
+
+  @if (!hasSearched()) {
+    <p class="results__empty results__empty--dashed">
+      Choose a route and dates, then press Search. Prices will appear here as suppliers reply.
+    </p>
+  } @else if (results().length === 0 && !searching()) {
+    <p class="results__empty">
+      No prices came back for this search. Try again or pick different suppliers.
+    </p>
+  }
+
+  <ol class="results__list">
+    @for (result of results(); track result.supplierName) {
+      <li class="results__row" [class.results__row--cheapest]="result.rank === 1">
+        <span class="results__rank">{{ result.rank }}</span>
+        <div class="results__supplier">
+          <span class="results__name">{{ result.supplierName }}</span>
+          <span class="results__time">Replied in {{ seconds(result.responseTimeMs) }}</span>
+        </div>
+        <div class="results__price">
+          <span class="results__amount">
+            {{ result.amount | currency: result.currency : 'symbol' : '1.2-2' }}
+          </span>
+          <span class="results__delta" [class.results__delta--cheapest]="result.rank === 1">
+            @if (result.rank === 1) {
+              Cheapest
+            } @else {
+              +{{ result.aboveCheapest | currency: result.currency : 'symbol' : '1.2-2' }}
+            }
+          </span>
+        </div>
+      </li>
+    }
+  </ol>
+</section>

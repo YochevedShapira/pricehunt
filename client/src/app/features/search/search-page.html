@@ -1,0 +1,36 @@
+<div class="page-heading">
+  <h1 class="page-heading__title">Find a shipping price</h1>
+  <p class="page-heading__subtitle">
+    Every selected supplier is asked at once. Prices appear as they arrive, cheapest first.
+  </p>
+</div>
+
+<section class="card" aria-label="Search">
+  <app-search-form
+    [suppliers]="suppliers()"
+    [searching]="searching()"
+    (search)="search($event)"
+    (cancel)="cancel()"
+  />
+</section>
+
+@if (activePhase(); as phase) {
+  <section class="card">
+    <app-search-progress
+      [phase]="phase"
+      [progress]="progress()"
+      [suppliers]="state().suppliers"
+      [searchNo]="state().searchNo"
+      [elapsedMs]="elapsedMs()"
+      [replacedRunningSearch]="state().replacedRunningSearch"
+      [error]="state().error"
+    />
+  </section>
+}
+
+<app-results-list
+  [results]="results()"
+  [route]="state().route"
+  [hasSearched]="hasSearched()"
+  [searching]="searching()"
+/>

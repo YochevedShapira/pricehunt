@@ -1,6 +1,9 @@
-<mat-toolbar color="primary" class="app-toolbar">
-  <span class="app-title">PriceHunt</span>
-  <nav class="app-nav">
+<mat-toolbar class="app-toolbar">
+  <span class="app-title">
+    <mat-icon aria-hidden="true">radar</mat-icon>
+    PriceHunt
+  </span>
+  <nav class="app-nav" aria-label="Main">
     <a mat-button routerLink="/search" routerLinkActive="app-nav-active">Search</a>
     <a mat-button routerLink="/history" routerLinkActive="app-nav-active">History</a>
   </nav>

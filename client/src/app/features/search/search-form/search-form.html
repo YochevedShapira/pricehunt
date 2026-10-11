@@ -1,0 +1,86 @@
+<form class="search-form" [formGroup]="form" (ngSubmit)="submit()">
+  <div class="search-form__row">
+    <div class="search-form__route">
+      <mat-form-field appearance="outline" class="search-form__field">
+        <mat-label>From</mat-label>
+        <input matInput formControlName="fromLocation" placeholder="City or port" />
+        @if (form.controls.fromLocation.hasError('required')) {
+          <mat-error>The origin is required.</mat-error>
+        }
+      </mat-form-field>
+
+      <button
+        mat-icon-button
+        type="button"
+        class="search-form__swap"
+        aria-label="Swap from and to"
+        (click)="swap()"
+      >
+        <mat-icon>swap_horiz</mat-icon>
+      </button>
+
+      <mat-form-field appearance="outline" class="search-form__field">
+        <mat-label>To</mat-label>
+        <input matInput formControlName="toLocation" placeholder="City or port" />
+        @if (form.controls.toLocation.hasError('required')) {
+          <mat-error>The destination is required.</mat-error>
+        }
+      </mat-form-field>
+    </div>
+
+    <div class="search-form__dates">
+      <mat-form-field appearance="outline" class="search-form__field">
+        <mat-label>From date</mat-label>
+        <input matInput [matDatepicker]="fromPicker" formControlName="fromDate" />
+        <mat-datepicker-toggle matIconSuffix [for]="fromPicker" />
+        <mat-datepicker #fromPicker />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="search-form__field">
+        <mat-label>To date</mat-label>
+        <input
+          matInput
+          [matDatepicker]="toPicker"
+          [min]="form.controls.fromDate.value"
+          formControlName="toDate"
+        />
+        <mat-datepicker-toggle matIconSuffix [for]="toPicker" />
+        <mat-datepicker #toPicker />
+      </mat-form-field>
+    </div>
+  </div>
+
+  <fieldset class="search-form__suppliers">
+    <div class="search-form__suppliers-header">
+      <legend class="search-form__legend">
+        Suppliers · {{ selectedCount() }} of {{ suppliers().length }} selected
+      </legend>
+      <div>
+        <button mat-button type="button" (click)="selectAll()">Select all</button>
+        <button mat-button type="button" (click)="clearAll()">Clear</button>
+      </div>
+    </div>
+
+    <mat-chip-listbox multiple aria-label="Suppliers to query" class="search-form__chips">
+      @for (supplier of suppliers(); track supplier.name) {
+        <mat-chip-option
+          [selected]="isSelected(supplier.name)"
+          (selectionChange)="setSelected(supplier.name, $event.selected)"
+        >
+          {{ supplier.name }}
+        </mat-chip-option>
+      }
+    </mat-chip-listbox>
+  </fieldset>
+
+  <div class="search-form__actions">
+    <button mat-flat-button type="submit" [disabled]="!canSearch()">
+      <mat-icon>search</mat-icon>
+      {{ searching() ? 'Search again' : 'Search' }}
+    </button>
+    @if (searching()) {
+      <button mat-stroked-button type="button" (click)="cancel.emit()">Cancel</button>
+    }
+    <span class="search-form__hint">Each search stops after 6 seconds.</span>
+  </div>
+</form>
