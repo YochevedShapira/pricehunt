@@ -213,15 +213,28 @@ Points worth knowing:
 
 ## AI usage
 
-Claude Code (Anthropic) was used throughout as a pair programmer:
+I used Claude Code as a pair programmer for the whole project, with a
+deliberate workflow: I made every design decision, the tool produced the
+first draft of each step, and I reviewed and corrected before committing.
 
-- Drafting the plan and the comparison tables for streaming, architecture and
-  fan-in alternatives; the choices were made by me after discussion.
-- Writing the first version of each class and its tests, step by step, which I
-  reviewed and had corrected (for example, removing a manual enumerator in
-  favour of `await foreach` plus `finally`, renaming `quote` to `price` to
-  match the brief, and moving the timeout into configuration).
-- Generating the EF Core migration and the smoke-test commands.
-- This README was drafted with it and edited by me.
+- **Design.** I asked for comparison tables with pros, cons and references
+  for the streaming transport (SSE vs SignalR vs chunked JSON vs
+  WebSockets), the solution structure (Clean, Onion, Hexagonal, Vertical
+  Slice, N-tier) and the fan-in mechanism (Channels, WhenAny, WhenEach,
+  Rx.NET, Dataflow). I chose SSE, Clean Architecture and Channels and can
+  defend each choice against its alternatives.
+- **Implementation.** Each of the 12 server steps was generated test-first
+  (NUnit + NSubstitute + FakeTimeProvider), reviewed by me, and committed
+  separately so the history shows the order of construction.
+- **Corrections I drove.** Replacing a hand-driven async enumerator with
+  `await foreach` plus `finally` for cancellation; renaming "quote" to
+  "price" to match the brief's vocabulary; moving the search timeout from a
+  constant into `appsettings.json` with validation on startup; dropping a
+  planned `SearchRecorder` class as needless indirection.
+- **Verification.** The tool ran the test suite, generated the EF Core
+  migration, and performed the smoke tests, including a real client
+  disconnect to confirm the search is recorded as Cancelled.
+- **Documentation.** The plan and this README were drafted with the tool
+  and edited by me.
 
 The git history shows the work in the order it was built, one step per commit.
