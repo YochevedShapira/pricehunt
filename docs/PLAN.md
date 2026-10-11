@@ -216,6 +216,20 @@ Sort columns are whitelisted via an enum to prevent arbitrary expressions.
 
 ### 1.9 Angular (Part 1 + Part 2 client)
 
+Two rules for the client, set on 2026-10-11:
+
+1. **Prefer a popular library over custom code.** Angular Material for
+   form fields, date pickers, multi-select, the sortable table and the
+   paginator; Angular's own `HttpClient`, reactive forms, router and
+   signals; RxJS for streams. The only hand-written plumbing is a ~20-line
+   wrapper that turns the browser's built-in `EventSource` into an RxJS
+   `Observable`, because every SSE library is larger than that wrapper.
+2. **Separate UI from logic (container / presentational).** Page components
+   (`SearchPage`, `HistoryPage`) inject services and own state. Everything
+   they render is a presentational component with `input()`/`output()` only
+   and `OnPush` change detection: `SearchForm`, `ResultsList`,
+   `SearchProgress`, `HistoryFilters`, `HistoryTable`.
+
 - Latest stable Angular, standalone components, signals for view state,
   Angular Material for form/table/paginator/sort.
 - `SearchStreamClient` wraps `EventSource` in an RxJS `Observable`;
