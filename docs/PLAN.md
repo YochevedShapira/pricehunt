@@ -191,9 +191,15 @@ Sort columns are whitelisted via an enum to prevent arbitrary expressions.
   Domain invariants (date range order, non-empty locations) live in value
   objects so they cannot be bypassed.
 - `AddProblemDetails()` + exception handler for consistent error bodies.
-- Structured logging with a scope per `searchId`.
+- Structured logging through `LoggerMessage` source generators; every search
+  log line carries the `searchId`. EF Core SQL logging is set to Warning.
+- A client disconnect needs no special handling: the use case throws
+  `OperationCanceledException` after recording the search as cancelled, and
+  ASP.NET Core swallows that exception on an aborted request (verified in the
+  log during a real disconnect).
 - CORS policy for the Angular dev origin only.
-- OpenAPI document for the non-streaming endpoints.
+- OpenAPI document (`/openapi/v1.json`, Development only) and a `/health`
+  endpoint with a database check.
 
 ### 1.8 Testing strategy
 
@@ -241,7 +247,7 @@ Sort columns are whitelisted via an enum to prevent arbitrary expressions.
 | 8  | Api: DI composition, `GET /api/suppliers`, `GET /api/searches/stream` SSE endpoint, request validation | [x] |
 | 9  | Api: integration test reading the SSE stream end to end               | [x] |
 | 10 | Application + Api: history query (filter, whitelisted sort, paging) + `GET /api/history` + tests | [x] |
-| 11 | Cross-cutting: ProblemDetails, CORS, logging scopes, OpenAPI; `dotnet run` smoke test | [ ] |
+| 11 | Cross-cutting: ProblemDetails, CORS, quiet EF logging, OpenAPI, health check; `dotnet run` smoke test | [x] |
 | 12 | README: how to run, streaming rationale, schema, trade-offs, AI usage | [ ] |
 
 ### Client
