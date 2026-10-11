@@ -269,7 +269,7 @@ Two rules for the client, set on 2026-10-11:
 | #  | Step                                                                 | Done |
 |----|----------------------------------------------------------------------|------|
 | 13 | Angular workspace, Material, folder structure, proxy to API          | [x] |
-| 14 | `SuppliersClient`, `SearchStreamClient` (EventSource → Observable) + unit tests | [ ] |
+| 14 | `SuppliersClient`, `SearchStreamClient` (EventSource → Observable) + unit tests | [x] |
 | 15 | Search screen: form, progressive sorted list, progress + final state, switchMap cancellation | [ ] |
 | 16 | History screen: filters, server-driven sort/paging table             | [ ] |
 | 17 | Polish: routing/nav, error states, README client section             | [ ] |
