@@ -229,6 +229,10 @@ Two rules for the client, set on 2026-10-11:
    they render is a presentational component with `input()`/`output()` only
    and `OnPush` change detection: `SearchForm`, `ResultsList`,
    `SearchProgress`, `HistoryFilters`, `HistoryTable`.
+3. **No `as` casts.** Types are declared, not asserted. JSON entering the
+   app is validated with Zod schemas and the TypeScript types are inferred
+   from them, so a malformed server message becomes a stream error instead
+   of a silently wrong object.
 
 - Latest stable Angular, standalone components, signals for view state,
   Angular Material for form/table/paginator/sort.

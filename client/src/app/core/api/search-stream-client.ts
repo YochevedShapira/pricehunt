@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { EVENT_SOURCE_FACTORY } from './event-source-factory';
-import { SEARCH_EVENT_TYPES, SearchEvent, SearchRequest } from './search-events';
+import { SEARCH_EVENT_TYPES, SearchEvent, SearchRequest, searchEventSchema } from './search-events';
 
 /**
  * Turns the browser's built-in `EventSource` into an RxJS stream of typed
@@ -19,14 +19,15 @@ export class SearchStreamClient {
       const source = this.createEventSource(toStreamUrl(request));
 
       for (const type of SEARCH_EVENT_TYPES) {
-        source.addEventListener(type, (message) => {
-          const event = {
-            type,
-            ...JSON.parse((message as MessageEvent<string>).data),
-          } as SearchEvent;
-          subscriber.next(event);
-          if (event.type === 'ended') {
-            subscriber.complete();
+        source.addEventListener(type, (message: MessageEvent<string>) => {
+          try {
+            const event = parseSearchEvent(type, message.data);
+            subscriber.next(event);
+            if (event.type === 'ended') {
+              subscriber.complete();
+            }
+          } catch (error) {
+            subscriber.error(error);
           }
         });
       }
@@ -36,6 +37,13 @@ export class SearchStreamClient {
       return () => source.close();
     });
   }
+}
+
+/** Validates one SSE message against the event contract. */
+function parseSearchEvent(type: SearchEvent['type'], data: string): SearchEvent {
+  const payload: unknown = JSON.parse(data);
+
+  return searchEventSchema.parse({ type, ...(typeof payload === 'object' ? payload : {}) });
 }
 
 function toStreamUrl(request: SearchRequest): string {

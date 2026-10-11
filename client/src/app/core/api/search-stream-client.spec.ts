@@ -113,6 +113,15 @@ describe('SearchStreamClient', () => {
     expect(source!.closed).toBe(true);
   });
 
+  it('errors when a message does not match the event contract', () => {
+    let error: unknown;
+    client.search(REQUEST).subscribe({ error: (e) => (error = e) });
+
+    source!.emit('price', { supplierName: 'Oceanic' });
+
+    expect(error).toBeInstanceOf(Error);
+  });
+
   it('errors when the connection fails', () => {
     let error: Error | undefined;
     client.search(REQUEST).subscribe({ error: (e) => (error = e) });

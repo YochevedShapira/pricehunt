@@ -1,46 +1,59 @@
+import { z } from 'zod';
+
 /**
- * The events of `GET /api/searches/stream`, one per SSE event name. A
- * discriminated union on `type`, so a `switch` over an event is exhaustive.
+ * The events of `GET /api/searches/stream`, one schema per SSE event name.
+ * The schemas validate the JSON at the boundary and the TypeScript types are
+ * inferred from them, so no cast is ever needed to turn a message into a
+ * typed event.
  */
 
-export interface SearchStarted {
-  readonly type: 'started';
-  readonly searchId: string;
-  readonly supplierCount: number;
-}
+const searchStartedSchema = z.object({
+  type: z.literal('started'),
+  searchId: z.string(),
+  supplierCount: z.number().int().nonnegative(),
+});
 
-export interface PriceReceived {
-  readonly type: 'price';
-  readonly supplierName: string;
-  readonly amount: number;
-  readonly currency: string;
-  readonly responseTimeMs: number;
-}
+const priceReceivedSchema = z.object({
+  type: z.literal('price'),
+  supplierName: z.string(),
+  amount: z.number().positive(),
+  currency: z.string().length(3),
+  responseTimeMs: z.number().int().nonnegative(),
+});
 
-export interface SupplierFailed {
-  readonly type: 'failed';
-  readonly supplierName: string;
-  readonly reason: string;
-  readonly responseTimeMs: number;
-}
+const supplierFailedSchema = z.object({
+  type: z.literal('failed'),
+  supplierName: z.string(),
+  reason: z.string(),
+  responseTimeMs: z.number().int().nonnegative(),
+});
 
-export type SearchStatus = 'Completed' | 'TimedOut' | 'Cancelled';
+export const searchStatusSchema = z.enum(['Completed', 'TimedOut', 'Cancelled']);
 
-export interface SearchEnded {
-  readonly type: 'ended';
-  readonly status: SearchStatus;
-  readonly respondedCount: number;
-}
+const searchEndedSchema = z.object({
+  type: z.literal('ended'),
+  status: searchStatusSchema,
+  respondedCount: z.number().int().nonnegative(),
+});
 
-export type SearchEvent = SearchStarted | PriceReceived | SupplierFailed | SearchEnded;
+export const searchEventSchema = z.discriminatedUnion('type', [
+  searchStartedSchema,
+  priceReceivedSchema,
+  supplierFailedSchema,
+  searchEndedSchema,
+]);
+
+export type SearchStarted = z.infer<typeof searchStartedSchema>;
+export type PriceReceived = z.infer<typeof priceReceivedSchema>;
+export type SupplierFailed = z.infer<typeof supplierFailedSchema>;
+export type SearchEnded = z.infer<typeof searchEndedSchema>;
+export type SearchStatus = z.infer<typeof searchStatusSchema>;
+export type SearchEvent = z.infer<typeof searchEventSchema>;
 
 /** The event names the server sends, used to subscribe to the stream. */
-export const SEARCH_EVENT_TYPES: readonly SearchEvent['type'][] = [
-  'started',
-  'price',
-  'failed',
-  'ended',
-];
+export const SEARCH_EVENT_TYPES: readonly SearchEvent['type'][] = searchEventSchema.options.map(
+  (option) => option.shape.type.value,
+);
 
 /** What the user asked for; becomes the query string of the stream URL. */
 export interface SearchRequest {

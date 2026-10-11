@@ -14,15 +14,16 @@ describe('App', () => {
     const fixture = TestBed.createComponent(App);
     await fixture.whenStable();
 
-    const toolbar = fixture.nativeElement as HTMLElement;
-    expect(toolbar.querySelector('.app-title')?.textContent).toContain('PriceHunt');
+    const element: HTMLElement = fixture.nativeElement;
+    expect(element.querySelector('.app-title')?.textContent).toContain('PriceHunt');
   });
 
   it('links to both screens', async () => {
     const fixture = TestBed.createComponent(App);
     await fixture.whenStable();
 
-    const links = Array.from((fixture.nativeElement as HTMLElement).querySelectorAll('a'));
+    const element: HTMLElement = fixture.nativeElement;
+    const links = Array.from(element.querySelectorAll('a'));
     expect(links.map((a) => a.textContent?.trim())).toEqual(['Search', 'History']);
   });
 });
