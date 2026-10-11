@@ -254,7 +254,7 @@ Sort columns are whitelisted via an enum to prevent arbitrary expressions.
 
 | #  | Step                                                                 | Done |
 |----|----------------------------------------------------------------------|------|
-| 13 | Angular workspace, Material, folder structure, proxy to API          | [ ] |
+| 13 | Angular workspace, Material, folder structure, proxy to API          | [x] |
 | 14 | `SuppliersClient`, `SearchStreamClient` (EventSource → Observable) + unit tests | [ ] |
 | 15 | Search screen: form, progressive sorted list, progress + final state, switchMap cancellation | [ ] |
 | 16 | History screen: filters, server-driven sort/paging table             | [ ] |

@@ -1,0 +1,23 @@
+.app-toolbar {
+  gap: 1rem;
+}
+
+.app-title {
+  font-weight: 600;
+}
+
+.app-nav {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.app-nav-active {
+  text-decoration: underline;
+  text-underline-offset: 0.35rem;
+}
+
+.app-content {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 1.5rem 1rem;
+}
