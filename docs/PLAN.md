@@ -248,7 +248,7 @@ Sort columns are whitelisted via an enum to prevent arbitrary expressions.
 | 9  | Api: integration test reading the SSE stream end to end               | [x] |
 | 10 | Application + Api: history query (filter, whitelisted sort, paging) + `GET /api/history` + tests | [x] |
 | 11 | Cross-cutting: ProblemDetails, CORS, quiet EF logging, OpenAPI, health check; `dotnet run` smoke test | [x] |
-| 12 | README: how to run, streaming rationale, schema, trade-offs, AI usage | [ ] |
+| 12 | README: how to run, streaming rationale, schema, trade-offs, AI usage | [x] |
 
 ### Client
 
